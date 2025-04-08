@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template de Testes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+    <body>
+        <header class="header">
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <h1>Padrão para Adaptar</h1>
+        </header>
+
+        <section class="wrapper">
+            <aside class="sidebar">
+                <nav class="navigation">
+                    <ul>
+                        <li><a href="#">Início</a></li>
+                        <li><a href="#">Sobre</a></li>
+                        <hr /><br />
+                        Teste aqui
+                    </ul>
+                </nav>
+            </aside>
+
+            <main>
+                <div class="card">
+                    <h2>Contato</h2>
+                    <div class="input-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" placeholder="Digite seu email">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="telefone">Telefone:</label>
+                        <input type="text" id="telefone" placeholder="Digite seu telefone">
+                    </div>
+                </div>
+        
+                <!-- Card de Informações Pessoais -->
+                <div class="card">
+                    <h2>Informações Pessoais</h2>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="nome">Nome:</label>
+                            <input type="text" id="nome" placeholder="Digite seu nome">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="sobrenome">Sobrenome:</label>
+                            <input type="text" id="sobrenome" placeholder="Digite seu sobrenome">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="idade">Idade:</label>
+                        <input type="number" id="idade" placeholder="Digite sua idade">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Endereço</h2>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" placeholder="Digite seu bairro">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="rua">Rua:</label>
+                            <input type="text" id="rua" placeholder="Digite a rua">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="cidade">Cidade:</label>
+                            <input type="text" id="cidade" placeholder="Digite a cidade">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="pais">País:</label>
+                        <input type="number" id="pais" placeholder="Digite o país">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="idioma">Idioma:</label>
+                        <input type="number" id="idioma" placeholder="Digite o idioma">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Preferências</h2>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="preferencias" value="notificacoes"> Receber notificações</label>
+                        <label><input type="checkbox" name="preferencias" value="newsletter"> Receber newsletter</label>
+                        <label><input type="checkbox" name="preferencias" value="promoções"> Receber promoções</label>
+                        <label><input type="checkbox" name="preferencias" value="atualizações"> Atualizações do sistema</label>
+                    </div>
+                </div>                
+            </main>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2025 Meu Site - Todos os direitos reservados</p>
+        </footer>
+
+        <script src="script.js"></script>
+    </body>
+</html>

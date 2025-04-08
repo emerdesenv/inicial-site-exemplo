@@ -1,0 +1,187 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+.header {
+    background-color: #222;
+    color: white;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header h1 {
+    font-size: 20px; 
+}
+
+/* Botão de menu */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: white;
+    position: absolute;
+    left: 1rem;
+    display: none;
+}
+
+/* Conteúdo principal */
+.wrapper {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    margin-top: 60px; /* Para não sobrepor o header */
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #333;
+    color: white;
+    width: 250px;
+    height: 100%;
+    position: fixed;
+    padding: 20px;
+    display: block;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin: 20px 0;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Main */
+main {
+    flex-direction: row; /* Deixa os cards lado a lado */
+    flex-wrap: wrap; /* Permite que os cards quebrem para a linha de baixo */
+    gap: 1rem; 
+    padding: 1rem;
+    justify-content: center; 
+    align-items: flex-start;
+    flex: 1; /* Faz o main ocupar todo o espaço restante */
+    margin-left: 17rem;
+    padding-bottom: 5rem;
+}
+
+/* Footer */
+.footer {
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Parte do formulário */
+.card {
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+}
+
+.card h2 {
+    margin-bottom: 2rem;
+    font-size: 18px;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Para inputs ao lado */
+.input-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.input-group {
+    flex: 1; /* Faz os inputs ocuparem a mesma largura */
+    min-width: 5rem
+}
+
+/* Checkbox */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Espaço entre os checkboxes */
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espaço entre o checkbox e o texto */
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.checkbox-group input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #007bff; /* Cor azul para os checkboxes */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column; /* Sidebar empilha no mobile */
+    }
+    
+    .sidebar { /* Nosso Menu com os itens */
+        display: none;
+    }
+
+    main { /* Nosso conteúdo principal*/
+        margin-left: 0;
+    }
+
+    .menu-toggle { /* Nosso menu hamburger */
+        display: block;
+    }
+
+    .sidebar .navigation {
+        height: calc(100vh - 62px);
+    }
+
+    .sidebar.show { /* Essa é uma classe que setamos para quando clicar sobre o mesmo mostre o menu com os itens, usado no JS */
+        display: block;
+    }
+}
