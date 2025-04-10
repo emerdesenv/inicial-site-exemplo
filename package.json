@@ -11,6 +11,8 @@
     "author": "Emerson Amancio",
     "license": "ISC",
     "devDependencies": {
-        "cypress": "^14.3.0"
+        "cypress": "^14.3.0",
+        "cypress-mochawesome-reporter": "^3.8.2",
+        "cypress-multi-reporters": "^2.0.4"
     }
 }

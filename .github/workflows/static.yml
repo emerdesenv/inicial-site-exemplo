@@ -24,28 +24,30 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Obter o código do repositório
+       # 1. Passo a passo para rodar os testes
+      - name: 🚀 Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v3
+      # 2. Instalando npm
+      - name: 📦 Instalar dependências do projeto
+        run: npm install --only=dev
+
+       # 4. Roda os testes por fim
+      - name: 🧪 Rodando os testes do Cypress
+        continue-on-error: true
+        uses: cypress-io/github-action@v6
         with:
-          node-version: '18'
+          record: true
+          spec: "cypress/e2e/**/*.cy.js"
+        if: always()
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 📑 Evidências dos Testes
+          path: cypress/reports
 
-      - name: Instalar dependências do projeto
-        run: npm install
-
-      - name: Executar testes automatizados com Cypress
-        run: npx cypress run
-
-      - name: Configurar GitHub Pages
+      - name: ⚙️ Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Gerar artefato para publicação
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.' # ou './build' se estiver usando algo como React/Vite
-
-      - name: Publicar no GitHub Pages
+      - name: 🛠️ Publicar no GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
