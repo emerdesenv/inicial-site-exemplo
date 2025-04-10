@@ -1,5 +1,4 @@
 const { defineConfig } = require("cypress");
-const { configurePlugin } = require('cypress-mongodb');
 require('dotenv').config();
 
 module.exports = defineConfig({
@@ -18,7 +17,6 @@ module.exports = defineConfig({
     e2e: {
         setupNodeEvents(on, config) {
             require('cypress-mochawesome-reporter/plugin')(on);
-            configurePlugin(on);
         },
     }
 });
