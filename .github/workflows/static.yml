@@ -41,11 +41,15 @@ jobs:
         if: always()
       - uses: actions/upload-artifact@v4
         with:
-          name: github-pages
+          name: 📑 Evidências dos Testes
           path: cypress/reports
 
       - name: ⚙️ Configurar GitHub Pages
         uses: actions/configure-pages@v5
+        - name: 📦 Upload dos Artefatos do Projeto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
 
       - name: 🛠️ Publicar no GitHub Pages
         id: deployment
