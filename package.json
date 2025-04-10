@@ -1,0 +1,16 @@
+{
+    "name": "inicial-site-exemplo",
+    "version": "1.0.0",
+    "description": "* Site de Testes e Exemplos Básicos",
+    "main": "cypress.config.js",
+    "scripts": {
+        "cypress-dashboard-run-cloud": "npx cypress run --browser chrome --record --key $CYPRESS_RECORD_KEY",
+        "cypress-dashboard-run": "npx cypress run --browser chrome"
+    },
+    "keywords": [],
+    "author": "Emerson Amancio",
+    "license": "ISC",
+    "devDependencies": {
+        "cypress": "^14.3.0"
+    }
+}
