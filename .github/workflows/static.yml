@@ -1,4 +1,3 @@
-# Workflow para testar com Cypress e fazer deploy no GitHub Pages
 name: Testar e Publicar no GitHub Pages
 
 on:
