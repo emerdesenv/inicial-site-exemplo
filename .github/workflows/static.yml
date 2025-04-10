@@ -45,7 +45,7 @@ jobs:
 
       - name: ⚙️ Configurar GitHub Pages
         uses: actions/configure-pages@v5
-        - name: 📦 Upload dos Artefatos do Projeto
+      - name: 📦 Upload dos Artefatos do Projeto
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
