@@ -20,6 +20,10 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           spec: "cypress/e2e/**/*.cy.js"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 📑 Evidências dos Testes
+          path: cypress/reports
 
       - name: 👀 Listando arquivos para deploy
         run: ls -la .  # Corrigido: seus arquivos estão na raiz do projeto
