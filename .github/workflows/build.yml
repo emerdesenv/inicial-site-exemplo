@@ -35,6 +35,7 @@ jobs:
   verificar-variaveis:
     name: 🔒 Verificar variáveis de ambiente
     runs-on: ubuntu-latest
+    needs: [testar]
 
     steps:
       - name: 🔍 Validando variáveis FTP
