@@ -70,8 +70,7 @@ jobs:
     needs: [testar, verificar-variaveis, deploy]
 
     steps:
-    - name: Enviar notificação para Discord
-        if: always()
+      - name: Enviar notificação para Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
