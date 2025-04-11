@@ -20,6 +20,9 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           spec: "cypress/e2e/**/*.cy.js"
+      
+      - name: 👀 Listando arquivos para deploy
+        run: ls -la ./inicial-site-exemplo
 
       - name: 📂 Deploy via FTP para o cPanel
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
