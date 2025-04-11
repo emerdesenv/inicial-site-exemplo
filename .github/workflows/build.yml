@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  teste:
+  testar:
     name: 🧪 Testar com Cypress
     runs-on: ubuntu-latest
 
