@@ -5,6 +5,10 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   testar:
     name: 🧪 Testar com Cypress
@@ -28,10 +32,22 @@ jobs:
           name: 📑 Evidências dos Testes
           path: cypress/reports
 
+  verificar-variaveis:
+    name: 🔒 Verificar variáveis de ambiente
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Validando variáveis FTP
+        run: |
+          test -n "${{ secrets.FTP_HOST }}" && \
+          test -n "${{ secrets.FTP_USERNAME }}" && \
+          test -n "${{ secrets.FTP_PASSWORD }}" || \
+          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
+
   deploy:
     name: 🚀 Deploy no cPanel
     runs-on: ubuntu-latest
-    needs: testar
+    needs: [testar, verificar-variaveis]
 
     steps:
       - name: 🚀 Checkout do Repositório
