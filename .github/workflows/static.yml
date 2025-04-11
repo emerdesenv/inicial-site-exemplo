@@ -1,54 +1,31 @@
-name: Testar e Publicar no GitHub Pages
+name: Testar e Deploy no cPanel
 
 on:
   push:
     branches: ["main"]
-
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  teste-e-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-       # 1. Passo a passo para rodar os testes
       - name: 🚀 Checkout do Repositório
         uses: actions/checkout@v4
 
-      # 2. Instalando npm
-      - name: 📦 Instalar dependências do projeto
-        run: npm install --only=dev
+      - name: 📦 Instalar dependências
+        run: npm install
 
-       # 4. Roda os testes por fim
-      - name: 🧪 Rodando os testes do Cypress
+      - name: 🧪 Rodar testes do Cypress
         uses: cypress-io/github-action@v6
         with:
           spec: "cypress/e2e/**/*.cy.js"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: 📑 Evidências dos Testes
-          path: cypress/reports
 
-      - name: ⚙️ Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-      
-      - name: 📦 Upload dos Artefatos do Projeto
-        uses: actions/upload-pages-artifact@v3
+      - name: 📂 Deploy via FTP para o cPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4
         with:
-          path: '.'
-
-      - name: 🛠️ Publicar no GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist
+          server-dir: /public_html/
