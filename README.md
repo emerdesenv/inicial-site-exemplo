@@ -4,4 +4,8 @@
 * Sites hospedados como Page pelo GitHub Pages
 * CI/CD padrão implementada a cada commit
 * Estamos usando o Cypress para testes automatizados
-* Automaticamente quando se usa o Pages é criado um workflows padrão onde é responsável por realizar o deploy a cada alteração
+* Automaticamente quando o deploy for concluído será feito a atualização no ambiente
+
+# Observações
+
+* Podemos usar o projeto para ser usado como Pages (Consultar Github Pages)
