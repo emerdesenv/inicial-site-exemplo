@@ -9,4 +9,4 @@
 # Observações
 
 * Podemos usar o projeto para ser usado como Pages (Consultar Github Pages)
-* Projeto inicial para uso do Pages e cPainel
+* Projeto inicial para uso do Pages e cPainel teste
