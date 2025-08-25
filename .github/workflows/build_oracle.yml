@@ -35,5 +35,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/projetos/inicial-site-exemplo
-            git pull origin master
-            sudo systemctl restart meu-site.service
+            git pull origin main
+          
