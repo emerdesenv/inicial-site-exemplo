@@ -17,7 +17,7 @@ jobs:
           host: ${{ secrets.HOST_ORACLE }}
           username: opc
           key: ${{ secrets.SSH_KEY_ORACLE }}
-          port: 22   # ajuste se sua porta SSH não for 22
+          port: 22
           script: |
             echo "✅ Consegui conectar no servidor!"
             hostname
@@ -27,7 +27,7 @@ jobs:
   deploy:
     name: 🚀 Deploy no Oracle
     runs-on: ubuntu-latest
-    needs: debug-ssh   # só roda se o debug passar
+    needs: debug-ssh
 
     steps:
       - name: 📂 Deploy via SSH
