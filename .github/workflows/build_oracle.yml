@@ -30,9 +30,9 @@ jobs:
       - name: 📂 Deploy Oracle
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.HOST_ORACLE }}
           username: opc
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KSSH_KEY_ORACLEEY }}
           port: 22
           script: |
             cd ~/projetos/inicial-site-exemplo
