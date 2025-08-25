@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: 🔍 Validando variáveis FTP
         run: |
-          test -n "${{ secrets.HOST }}" && \
-          test -n "${{ secrets.SSH_KEY }}" || \
+          test -n "${{ secrets.HOST_ORACLE }}" && \
+          test -n "${{ secrets.SSH_KEY_ORACLE }}" || \
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 
   deploy:
