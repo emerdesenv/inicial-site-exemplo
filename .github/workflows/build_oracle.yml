@@ -1,0 +1,39 @@
+name: Somente Atualização
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  variaveis:
+    name: 🔒 Variáveis de Ambiente
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Validando variáveis FTP
+        run: |
+          test -n "${{ secrets.HOST }}" && \
+          test -n "${{ secrets.SSH_KEY }}" || \
+          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
+
+  deploy:
+    name: 🚀 Deploy no cPanel
+    runs-on: ubuntu-latest
+    needs: variaveis
+
+    steps:
+      - name: 📂 Deploy Oracle
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: opc
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/projetos/inicial-site-exemplo
+            git pull origin master
+            sudo systemctl restart meu-site.service
