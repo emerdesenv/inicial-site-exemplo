@@ -1,33 +1,36 @@
-name: Somente Atualização
+name: Debug SSH e Deploy
 
 on:
+  workflow_dispatch:   # só dispara manualmente (para testar)
   push:
     branches: ["main"]
-  workflow_dispatch:
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
 
 jobs:
-  variaveis:
-    name: 🔒 Variáveis de Ambiente
+  debug-ssh:
+    name: 🕵️ Testando conexão SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔍 Validando variáveis FTP
-        run: |
-          test -n "${{ secrets.HOST_ORACLE }}" && \
-          test -n "${{ secrets.SSH_KEY_ORACLE }}" || \
-          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
+      - name: ⏳ Testando conexão
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_ORACLE }}
+          username: opc
+          key: ${{ secrets.SSH_KEY_ORACLE }}
+          port: 22   # ajuste se sua porta SSH não for 22
+          script: |
+            echo "✅ Consegui conectar no servidor!"
+            hostname
+            whoami
+            uptime
 
   deploy:
-    name: 🚀 Deploy no cPanel
+    name: 🚀 Deploy no Oracle
     runs-on: ubuntu-latest
-    needs: variaveis
+    needs: debug-ssh   # só roda se o debug passar
 
     steps:
-      - name: 📂 Deploy Oracle
+      - name: 📂 Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST_ORACLE }}
@@ -37,4 +40,4 @@ jobs:
           script: |
             cd ~/projetos/inicial-site-exemplo
             git pull origin main
-            
+            sudo systemctl restart meu-site.service
