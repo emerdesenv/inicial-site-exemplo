@@ -33,7 +33,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: opc
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           script: |
             cd ~/projetos/inicial-site-exemplo
             git pull origin main
-          
+            
