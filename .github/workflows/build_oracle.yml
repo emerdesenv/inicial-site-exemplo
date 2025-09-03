@@ -38,6 +38,6 @@ jobs:
           key: ${{ secrets.SSH_KEY_ORACLE }}
           port: 22
           script: |
-            cd ~/projetos/inicial-site-exemplo
+            cd ~/inicial-site-exemplo
             git pull origin main
             sudo systemctl restart meu-site.service
