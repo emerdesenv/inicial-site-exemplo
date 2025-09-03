@@ -15,7 +15,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST_ORACLE }}
-          username: opc
+          username: ubuntu
           key: ${{ secrets.SSH_KEY_ORACLE }}
           port: 22
           script: |
@@ -34,7 +34,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST_ORACLE }}
-          username: opc
+          username: ubuntu
           key: ${{ secrets.SSH_KEY_ORACLE }}
           port: 22
           script: |
