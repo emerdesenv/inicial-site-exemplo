@@ -40,4 +40,4 @@ jobs:
           script: |
             cd ~/inicial-site-exemplo
             git pull origin main
-            sudo systemctl restart meu-site.service
+            sudo systemctl restart site-frontend.service
