@@ -40,4 +40,4 @@ jobs:
           script: |
             cd ~/inicial-site-exemplo
             git pull origin main
-            sudo systemctl restart inicial-teste-exemplo.service
+            sudo systemctl restart nginx.service
