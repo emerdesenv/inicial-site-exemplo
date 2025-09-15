@@ -1,7 +1,7 @@
-name: Debug SSH e Deploy
+name: Debug SSH, Testes e Deploy
 
 on:
-  workflow_dispatch:   # só dispara manualmente (para testar)
+  workflow_dispatch:   # dispara manualmente
   push:
     branches: ["main"]
 
@@ -20,14 +20,29 @@ jobs:
           port: 22
           script: |
             echo "✅ Consegui conectar no servidor!"
-            hostname
-            whoami
-            uptime
+
+  test-cypress:
+    name: 🧪 Testes E2E com Cypress
+    runs-on: ubuntu-latest
+    needs: debug-ssh
+
+    steps:
+      - name: 📥 Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: ⚡ Instalar dependências
+        run: npm install
+
+      - name: 🧪 Rodar Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          record: true
+          spec: "cypress/e2e/**/*.cy.js"
 
   deploy:
     name: 🚀 Deploy no Oracle
     runs-on: ubuntu-latest
-    needs: debug-ssh
+    needs: test-cypress
 
     steps:
       - name: 📂 Deploy via SSH
