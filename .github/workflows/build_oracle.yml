@@ -62,4 +62,4 @@ jobs:
           script: |
             cd ~/inicial-site-exemplo
             git pull origin main
-            sudo nginx -t && sudo systemctl reload nginx
+            sudo systemctl restart nginx.service
