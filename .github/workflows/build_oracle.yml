@@ -36,7 +36,7 @@ jobs:
       - name: 🧪 Rodar Cypress
         uses: cypress-io/github-action@v6
         with:
-          record: true
+          # record: true
           spec: "cypress/e2e/**/*.cy.js"
         env:
           # Mapeia as secrets para variáveis de ambiente
