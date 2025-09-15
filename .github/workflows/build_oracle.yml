@@ -41,6 +41,10 @@ jobs:
         env:
           # Mapeia as secrets para variáveis de ambiente
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 📑 Evidências dos Testes
+          path: cypress/reports
 
   deploy:
     name: 🚀 Deploy no Oracle
