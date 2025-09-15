@@ -10,3 +10,7 @@
 
 * Podemos usar o projeto para ser usado como Pages (Consultar Github Pages)
 * Projeto inicial para uso do Pages e cPainel
+
+# Acesso do IP
+
+* Para acessar o IP: **http://168.138.129.255:8080/**

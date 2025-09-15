@@ -38,6 +38,9 @@ jobs:
         with:
           record: true
           spec: "cypress/e2e/**/*.cy.js"
+        env:
+          # Mapeia as secrets para variáveis de ambiente
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
   deploy:
     name: 🚀 Deploy no Oracle
