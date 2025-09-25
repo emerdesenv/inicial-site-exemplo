@@ -5,6 +5,7 @@
 * CI/CD padrão implementada a cada commit
 * Estamos usando o Cypress para testes automatizados
 * Automaticamente quando o deploy for concluído será feito a atualização no ambiente
+* Integração com a VM na Oracle Cloud
 
 # Observações
 
