@@ -45,31 +45,64 @@ jobs:
   secrets_scan:
     name: 🔑 Secrets Scan (Gitleaks)
     runs-on: ubuntu-latest
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # use 1 se quiser só o commit atual
 
-      - name: 🚨 Rodar Gitleaks
-        id: gitleaks
+      # Você pode usar a action oficial, mas prefiro o CLI para controlar saída
+      - name: 🧰 Instalar Gitleaks (CLI)
         run: |
-          echo "Rodando Gitleaks..."
-          gitleaks detect --source . \
+          curl -sSL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | bash
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: 🚨 Rodar Gitleaks e garantir SARIF válido
+        id: gitleaks
+        shell: bash
+        run: |
+          set -e
+          REPORT="gitleaks.sarif"
+
+          # Rode o scan; --exit-code 0 evita falhar o job
+          # Remova --no-git se quiser varrer o histórico completo
+          gitleaks detect \
+            --source . \
             --no-git \
             --report-format sarif \
-            --report-path gitleaks.sarif || true
+            --report-path "$REPORT" \
+            --exit-code 0 || true
 
-          # Garante criação do arquivo vazio se nada encontrado
-          if [ ! -f gitleaks.sarif ]; then
-            echo '{"runs":[]}' > gitleaks.sarif
+          # Se o relatório está ausente ou vazio (0 bytes), cria um SARIF MÍNIMO VÁLIDO
+          if [ ! -s "$REPORT" ]; then
+            cat > "$REPORT" << 'JSON'
+            {
+              "version": "2.1.0",
+              "runs": [
+                {
+                  "tool": {
+                    "driver": {
+                      "name": "gitleaks",
+                      "informationUri": "https://github.com/gitleaks/gitleaks",
+                      "rules": []
+                    }
+                  },
+                  "results": []
+                }
+              ]
+            }
+            JSON
           fi
 
+          echo "report=$REPORT" >> "$GITHUB_OUTPUT"
+
       - name: 📤 Upload SARIF (Gitleaks)
-        if: always()   # executa mesmo se não houver findings
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: gitleaks.sarif
+          sarif_file: ${{ steps.gitleaks.outputs.report }}
 
   # =========================
   # 2) SAST (Semgrep)
