@@ -47,10 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout (histórico completo para varredura total)
-      # Se quiser varrer TODO o histórico, mantenha fetch-depth: 0
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+        # Se quiser varrer TODO o histórico, mantenha fetch-depth: 0
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🚨 Rodar Gitleaks (OSS)
         uses: gitleaks/gitleaks-action@v2
