@@ -46,16 +46,17 @@ jobs:
     name: 🔑 Secrets Scan (Gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # varredura histórica
-      - name: 🚨 Rodar Gitleaks
+      - name: 📥 Checkout (histórico completo para varredura total)
+      # Se quiser varrer TODO o histórico, mantenha fetch-depth: 0
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+      - name: 🚨 Rodar Gitleaks (OSS)
         uses: gitleaks/gitleaks-action@v2
-        env:
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE_KEY || '' }}
         with:
           args: detect --source . --report-format sarif --report-path gitleaks.sarif
+
       - name: 📤 Upload SARIF (Gitleaks)
         uses: github/codeql-action/upload-sarif@v3
         with:
