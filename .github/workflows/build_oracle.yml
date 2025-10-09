@@ -1,65 +1,239 @@
 name: Debug SSH, Testes e Deploy
 
 on:
-  workflow_dispatch:   # dispara manualmente
+  workflow_dispatch: {}
   push:
     branches: ["main"]
 
+# Princípios OWASP: permissões mínimas, reprodutibilidade e gates antes do deploy
+permissions:
+  contents: read
+  security-events: write   # enviar SARIF (Semgrep/Gitleaks/Trivy/ZAP)
+
+concurrency:
+  group: devsecops-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "18"
+  APP_NAME: "inicial-site-exemplo"  # ajuste se necessário
+
 jobs:
+
+  # =========================
+  # 0) Conectividade segura SSH (com verificação de fingerprint)
+  # =========================
   debug-ssh:
     name: 🕵️ Testando conexão SSH
     runs-on: ubuntu-latest
-
     steps:
       - name: ⏳ Testando conexão
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST_ORACLE }}
-          username: ubuntu
+          username: ${{ secrets.USER_ORACLE }}
           key: ${{ secrets.SSH_KEY_ORACLE }}
-          port: 22
+          port: ${{ secrets.PORT_ORACLE || 22 }}
+          host_fingerprint: ${{ secrets.SSH_HOST_FINGERPRINT }} # OWASP: valida host key
+          script_stop: true
           script: |
             echo "✅ Consegui conectar no servidor!"
 
-  test-cypress:
-    name: 🧪 Testes E2E com Cypress
+  # =========================
+  # 1) Secrets scanning (Gitleaks)
+  # =========================
+  secrets_scan:
+    name: 🔑 Secrets Scan (Gitleaks)
     runs-on: ubuntu-latest
-    needs: debug-ssh
-
     steps:
-      - name: 📥 Checkout do repositório
-        uses: actions/checkout@v3
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # varredura histórica
+      - name: 🚨 Rodar Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE_KEY || '' }}
+        with:
+          args: detect --source . --report-format sarif --report-path gitleaks.sarif
+      - name: 📤 Upload SARIF (Gitleaks)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
 
-      - name: ⚡ Instalar dependências
-        run: npm install
+  # =========================
+  # 2) SAST (Semgrep)
+  # =========================
+  sast_semgrep:
+    name: 🧯 SAST (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ▶️ Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/ci
+          generateSarif: "1"
+      - name: 📤 Upload SARIF (Semgrep)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+      - name: 📎 Evidências SAST
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-semgrep
+          path: semgrep.sarif
 
+  # =========================
+  # 3) Auditoria de dependências (npm)
+  # =========================
+  deps_audit:
+    name: 📦 Auditoria de Dependências (npm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🔧 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: 📥 Instalar deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+      - name: 🔍 npm audit
+        run: npm audit --audit-level=moderate
+
+  # =========================
+  # 4) Scan de imagem Docker (Trivy) - opcional se existir Dockerfile
+  # =========================
+  container_scan:
+    name: 🐳 Trivy (Imagem Docker)
+    runs-on: ubuntu-latest
+    if: hashFiles('Dockerfile') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - name: ⚙️ QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: 🧱 Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: 🏗️ Build local (load)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: myapp:ci
+      - name: 📦 Exportar imagem
+        run: docker save myapp:ci -o image.tar
+      - name: 🛡️ Trivy image
+        uses: aquasecurity/trivy-action@master
+        with:
+          input: image.tar
+          format: sarif
+          output: trivy-image.sarif
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+      - name: 📤 Upload SARIF (Trivy)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image.sarif
+      - name: 📎 Evidências Trivy
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image
+          path: trivy-image.sarif
+
+  # =========================
+  # 5) Testes E2E (Cypress)
+  # =========================
+  test-cypress:
+    name: 🧪 Testes E2E (Cypress)
+    runs-on: ubuntu-latest
+    needs: [debug-ssh, secrets_scan, sast_semgrep, deps_audit, container_scan]
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      - name: ⚡ Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: 📦 Instalar deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
       - name: 🧪 Rodar Cypress
         uses: cypress-io/github-action@v6
         with:
+          spec: cypress/e2e/**/*.cy.js
           # record: true
-          spec: "cypress/e2e/**/*.cy.js"
         env:
-          # Mapeia as secrets para variáveis de ambiente
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-      - uses: actions/upload-artifact@v4
+      - name: 📎 Evidências Cypress
+        uses: actions/upload-artifact@v4
         with:
-          name: 📑 Evidências dos Testes
-          path: cypress/reports
+          name: cypress-evidences
+          path: |
+            cypress/videos
+            cypress/screenshots
+            cypress/reports
+          if-no-files-found: ignore
 
+  # =========================
+  # 6) DAST (OWASP ZAP Baseline) - contra ambiente público
+  # =========================
+  dast-zap:
+    name: 🕷️ DAST (OWASP ZAP Baseline)
+    runs-on: ubuntu-latest
+    needs: test-cypress
+    steps:
+      - uses: actions/checkout@v4
+      - name: ▶️ ZAP Baseline
+        uses: zaproxy/action-baseline@v0.7.0
+        with:
+          target: ${{ vars.ZAP_TARGET }}
+          cmd_options: '-t 120'
+      - name: 📎 Relatórios ZAP
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            report_html.html
+            report_json.json
+            owasp_zap_log.txt
+          if-no-files-found: ignore
+
+  # =========================
+  # 7) Deploy (somente se tudo acima passou)
+  # =========================
   deploy:
     name: 🚀 Deploy no Oracle
     runs-on: ubuntu-latest
-    needs: test-cypress
-
+    needs: dast-zap
     steps:
       - name: 📂 Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST_ORACLE }}
-          username: ubuntu
+          username: ${{ secrets.USER_ORACLE }}
           key: ${{ secrets.SSH_KEY_ORACLE }}
-          port: 22
+          port: ${{ secrets.PORT_ORACLE || 22 }}
+          host_fingerprint: ${{ secrets.SSH_HOST_FINGERPRINT }}
+          script_stop: true
           script: |
-            cd ~/inicial-site-exemplo
-            git pull origin main
+            set -e
+            cd ~/${{ env.APP_NAME }}
+            git fetch --all --prune
+            git checkout main
+            git pull --rebase
+            # Se usa Nginx:
             sudo systemctl restart nginx.service
+            echo "✅ Deploy concluído"
