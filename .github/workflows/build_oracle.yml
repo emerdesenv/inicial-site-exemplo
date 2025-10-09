@@ -8,7 +8,7 @@ on:
 # Princípios OWASP: permissões mínimas, reprodutibilidade e gates antes do deploy
 permissions:
   contents: read
-  security-events: write   # enviar SARIF (Semgrep/Gitleaks/Trivy/ZAP)
+  security-events: write # enviar SARIF (Semgrep/Gitleaks/Trivy/ZAP)
 
 concurrency:
   group: devsecops-${{ github.ref }}
