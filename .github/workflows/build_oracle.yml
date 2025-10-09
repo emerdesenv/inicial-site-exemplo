@@ -113,23 +113,41 @@ jobs:
   container_scan:
     name: 🐳 Trivy (Imagem Docker)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('Dockerfile') != '' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: 🔎 Verificar existência do Dockerfile
+        id: check
+        run: |
+          if [ -f Dockerfile ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: ⚙️ QEMU
+        if: steps.check.outputs.exists == 'true'
         uses: docker/setup-qemu-action@v3
+
       - name: 🧱 Buildx
+        if: steps.check.outputs.exists == 'true'
         uses: docker/setup-buildx-action@v3
+
       - name: 🏗️ Build local (load)
+        if: steps.check.outputs.exists == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           load: true
           tags: myapp:ci
+
       - name: 📦 Exportar imagem
+        if: steps.check.outputs.exists == 'true'
         run: docker save myapp:ci -o image.tar
+
       - name: 🛡️ Trivy image
+        if: steps.check.outputs.exists == 'true'
         uses: aquasecurity/trivy-action@master
         with:
           input: image.tar
@@ -138,11 +156,15 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+
       - name: 📤 Upload SARIF (Trivy)
+        if: steps.check.outputs.exists == 'true'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-image.sarif
+
       - name: 📎 Evidências Trivy
+        if: steps.check.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: trivy-image
