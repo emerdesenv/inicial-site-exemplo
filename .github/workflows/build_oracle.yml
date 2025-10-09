@@ -43,33 +43,33 @@ jobs:
   # 1) Secrets scanning (Gitleaks)
   # =========================
   secrets_scan:
-  name: 🔑 Secrets Scan (Gitleaks)
-  runs-on: ubuntu-latest
-  steps:
-    - name: 📥 Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    name: 🔑 Secrets Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: 🚨 Rodar Gitleaks
-      id: gitleaks
-      run: |
-        echo "Rodando Gitleaks..."
-        gitleaks detect --source . \
-          --no-git \
-          --report-format sarif \
-          --report-path gitleaks.sarif || true
+      - name: 🚨 Rodar Gitleaks
+        id: gitleaks
+        run: |
+          echo "Rodando Gitleaks..."
+          gitleaks detect --source . \
+            --no-git \
+            --report-format sarif \
+            --report-path gitleaks.sarif || true
 
-        # Garante criação do arquivo vazio se nada encontrado
-        if [ ! -f gitleaks.sarif ]; then
-          echo '{"runs":[]}' > gitleaks.sarif
-        fi
+          # Garante criação do arquivo vazio se nada encontrado
+          if [ ! -f gitleaks.sarif ]; then
+            echo '{"runs":[]}' > gitleaks.sarif
+          fi
 
-    - name: 📤 Upload SARIF (Gitleaks)
-      if: always()   # executa mesmo se não houver findings
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: gitleaks.sarif
+      - name: 📤 Upload SARIF (Gitleaks)
+        if: always()   # executa mesmo se não houver findings
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
 
   # =========================
   # 2) SAST (Semgrep)
