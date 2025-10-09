@@ -113,7 +113,7 @@ jobs:
   container_scan:
     name: 🐳 Trivy (Imagem Docker)
     runs-on: ubuntu-latest
-    if: hashFiles('Dockerfile') != ''
+    if: ${{ hashFiles('Dockerfile') != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: ⚙️ QEMU
