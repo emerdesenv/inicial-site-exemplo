@@ -28,17 +28,7 @@ jobs:
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 
   name: Deploy HostGator (SSH)
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-concurrency:
-  group: deploy-ssh-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
+  
   deploy:
     runs-on: ubuntu-latest
     steps:
