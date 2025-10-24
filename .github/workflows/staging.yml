@@ -50,7 +50,7 @@ jobs:
 
   security_final:
     name: 🔐 Security Suite
-    needs: [test-e2e]
+    #needs: [test-e2e]
     if: success()
     uses: ./.github/workflows/security_final.yml
     secrets: inherit
