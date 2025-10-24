@@ -38,6 +38,8 @@ jobs:
           host: ${{ secrets.HG_SSH_HOST }}   # ex: momentodev.com:22
           username: ${{ secrets.HG_SSH_USER }}
           key: ${{ secrets.HG_SSH_KEY }}
+          passphrase: ${{ secrets.HG_SSH_PASSPHRASE }}
+          
           script: |
             set -Eeuo pipefail
 

@@ -28,7 +28,6 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
         uses: cypress-io/github-action@v6
         with:
-          record: true
           spec: "cypress/e2e/**/*.cy.js"
 
       - name: 🗃️ Salvar evidências dos testes
