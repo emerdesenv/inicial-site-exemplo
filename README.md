@@ -14,4 +14,4 @@
 
 # Acesso do IP
 
-* Para acessar o IP: **http://168.138.129.255:8080/**
+* Para acessar o IP: **https://www.momentodev.com**

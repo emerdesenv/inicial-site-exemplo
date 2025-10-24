@@ -1,0 +1,86 @@
+name: Teste e Deploy no Jelastic
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Deploy"
+        required: false
+        type: string
+        default: "main"
+    secrets:
+      HG_SSH_HOST:     { required: false }
+      HG_SSH_USER:     { required: false }
+      HG_SSH_KEY:      { required: false }
+      DISCORD_WEBHOOK: { required: false }
+
+jobs:
+  verificar-variaveis:
+    name: 🔒 Variáveis de Ambiente
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Validando variáveis de Ambiente
+        run: |
+          test -n "${{ secrets.HG_SSH_HOST }}" && \
+          test -n "${{ secrets.HG_SSH_USER }}" && \
+          test -n "${{ secrets.HG_SSH_KEY }}" || \
+          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
+
+  name: Deploy HostGator (SSH)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ssh-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git pull no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HG_SSH_HOST }}   # ex: momentodev.com:22
+          username: ${{ secrets.HG_SSH_USER }}
+          key: ${{ secrets.HG_SSH_KEY }}
+          script: |
+            set -Eeuo pipefail
+
+            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
+
+            echo ">> Atualizando $REPO_DIR"
+            if [ ! -d "$REPO_DIR/.git" ]; then
+              echo "ERRO: não encontrei .git em $REPO_DIR"; exit 2
+            fi
+            git -C "$REPO_DIR" fetch --all --prune
+            git -C "$REPO_DIR" reset --hard origin/main
+
+            # permissões recomendadas
+            find "$REPO_DIR" -type d -exec chmod 755 {} \;
+            find "$REPO_DIR" -type f -exec chmod 644 {} \;
+
+            echo ">> OK"
+
+  notificacao:
+    name: 📩 Envio Notificação
+    runs-on: ubuntu-latest
+    needs: [verificar-variaveis, deploy]
+
+    steps:
+      - name: Enviar notificação para Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+                "username": "GitHub Actions", 
+                "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", 
+                "content": "✅ **Deploy success**\n🌱 **Produto**: Site Inicial\n👤 **Usuário:** ${{ github.actor }}\n🔗 **Repositório**: ${{ github.repository }}\n🔀 **Branch**: ${{ github.ref }}\n"
+              }' \
+          $DISCORD_WEBHOOK

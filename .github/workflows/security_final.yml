@@ -1,0 +1,29 @@
+name: Security Suite (ZAP + SCA + SAST)
+
+on:
+  workflow_call:
+    inputs:
+      zap_minutes:
+        description: "Tempo do spider do ZAP (minutos)"
+        required: false
+        type: number
+        default: 5
+
+jobs:
+  zap_baseline:
+    name: DAST - ZAP Baseline (Momento Dev - Emerson)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ZAP Baseline Scan (Momento Dev - Emerson)
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: 'https://www.momentodev.com/'
+          cmd_options: >-
+            -a -m ${{ inputs.zap_minutes }} -J momento-dev.json
+      - name: Publicar relatório ZAP (casa-servidor)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report-casa-servidor
+          path: momento-dev.json

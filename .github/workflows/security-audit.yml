@@ -1,0 +1,88 @@
+name: 🛡️ Security Audit (OSV + Postinstall Block)
+
+on:
+  workflow_call:
+
+jobs:
+  security-audit:
+    name: 🔍 Analisar dependências e bloquear postinstall (auto-fixo)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧩 Checkout do código (com submódulos)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: 🧰 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📝 Debug de caminhos e lockfiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "PWD: $(pwd)"
+          echo "Conteúdo raiz:"
+          ls -lah
+          echo "Conteúdo de src/ (se existir):"
+          ls -lah src || true
+          echo "🔎 Procurando lockfiles suportados (npm/yarn)..."
+          find "${GITHUB_WORKSPACE}" -type f \( -name package-lock.json -o -name npm-shrinkwrap.json -o -name yarn.lock \) \
+            | sort | tee /tmp/lockfiles.txt || true
+          echo "🔎 Procurando manifests (package.json) para fallback por SBOM..."
+          find "${GITHUB_WORKSPACE}" -type f -name package.json || true
+
+      - name: 🚫 Bloquear scripts pós-instalação onde houver lockfile
+        if: hashFiles('**/package-lock.json','**/npm-shrinkwrap.json','**/yarn.lock') != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "📜 Lockfiles encontrados:"
+          cat /tmp/lockfiles.txt
+          while read -r LOCK; do
+            [[ -z "$LOCK" ]] && continue
+            DIR="$(dirname "$LOCK")"
+            echo "📦 Instalando (sem scripts) em: $DIR"
+            if [[ "$LOCK" == *yarn.lock ]]; then
+              ( cd "$DIR" && yarn install --ignore-scripts --frozen-lockfile || yarn install --ignore-scripts )
+            else
+              ( cd "$DIR" && export npm_config_ignore_scripts=true && npm ci --ignore-scripts )
+            fi
+          done < /tmp/lockfiles.txt
+
+      - name: 🔎 Instalar OSV-Scanner (user-local)
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -sSfL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 \
+            -o "$HOME/bin/osv-scanner"
+          chmod +x "$HOME/bin/osv-scanner"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: 🧪 Executar varredura com OSV (lockfiles absolutos)
+        if: hashFiles('**/package-lock.json','**/npm-shrinkwrap.json','**/yarn.lock') != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t LOCKS < /tmp/lockfiles.txt
+          ARGS=()
+          for LOCK in "${LOCKS[@]}"; do
+            [[ -f "$LOCK" ]] && ARGS+=( "--lockfile=$LOCK" )
+          done
+          echo "▶️ Comando: osv-scanner ${ARGS[*]} --format=json > osv-report.json"
+          osv-scanner "${ARGS[@]}" --format=json > osv-report.json || true
+          echo "✅ Scan por lockfile concluído."
+
+      - name: ⚠️ Falhar se houver vulnerabilidades CRÍTICAS
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f osv-report.json || { echo "Relatório não encontrado."; exit 1; }
+          if grep -q '"severity": "CRITICAL"' osv-report.json; then
+            echo "🚨 Vulnerabilidade CRÍTICA detectada! Corrija antes de prosseguir."
+            exit 1
+          fi
+          echo "✅ Nenhuma vulnerabilidade CRÍTICA encontrada."

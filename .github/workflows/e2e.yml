@@ -1,0 +1,39 @@
+name: Teste E2E
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Testes E2E"
+        required: false
+        type: string
+        default: "main"
+    secrets:
+      CYPRESS_PROJECT_ID: { required: false }
+
+jobs:
+  test:
+    name: 🧪 Testes com Cypress
+    runs-on: ubuntu-latest
+   
+    steps:
+      - name: 🚀 Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🧪 Rodar testes do Cypress
+        env: 
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+        uses: cypress-io/github-action@v6
+        with:
+          record: true
+          spec: "cypress/e2e/**/*.cy.js"
+
+      - name: 🗃️ Salvar evidências dos testes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 📑 Evidências dos Testes
+          path: cypress/reports

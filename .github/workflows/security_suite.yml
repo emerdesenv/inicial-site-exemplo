@@ -1,0 +1,102 @@
+name: Security Suite (ZAP + SCA + SAST)
+
+on:
+  workflow_call:
+
+jobs:
+  # ====== SCA - Node (npm audit) ======
+  sca_node_audit:
+    name: SCA - Node (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: npm ci
+        working-directory: ./src
+        run: npm audit --audit-level=high
+
+  # ====== SCA - Trivy (filesystem) ======
+  sca_trivy_fs:
+    name: SCA - Trivy (filesystem)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+      - name: Exportar relatório Trivy FS (SARIF)
+        if: always()
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-fs-sarif
+          path: trivy-fs.sarif
+
+  # ====== SCA - Trivy (imagem Docker) ======
+  sca_trivy_image:
+    name: SCA - Trivy (imagem Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t app:ci .
+      - uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: app:ci
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+      - name: Exportar relatório Trivy Image (SARIF)
+        if: always()
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: app:ci
+          format: sarif
+          output: trivy-image.sarif
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-image-sarif
+          path: trivy-image.sarif
+
+  # ====== SAST - Semgrep ======
+  sast_semgrep:
+    name: SAST - Semgrep (nativo)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 🧾 Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: 🔧 Instalar Semgrep (CLI nativo)
+        run: |
+          pip install semgrep
+
+      - name: 🛡️ Rodar Semgrep (OWASP + PHP + regras locais)
+        run: |
+          semgrep \
+            --config .semgrep.yml \
+            --include 'src/**/*.php' \
+            --sarif --output semgrep.sarif
+
+      - name: 📦 Upload do relatório Semgrep como artifact
+        if: always() && hashFiles('semgrep.sarif') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          if-no-files-found: warn

@@ -1,0 +1,65 @@
+name: Deploy e OWASP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'env-example.txt'
+      - 'docker-compose.yml'
+      - 'README.md'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+concurrency:
+  group: "pages"
+  
+jobs:
+  precheck:
+    name: 🔎 Precheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🌐 Healthcheck hc.php (retry)
+        env:
+          APP_BASE_URL: https://www.momentodev.com
+          HC_PATH: /hc.php
+        run: |
+          URL="${APP_BASE_URL%/}${HC_PATH:-/hc.php}"
+          echo "Checando $URL ..."
+          for i in {1..10}; do
+            CODE=$(curl -s -o /tmp/hc -w "%{http_code}" "$URL" || true)
+            [ "$CODE" = "200" ] && { echo "OK (200)"; exit 0; }
+            echo "Tentativa $i: HTTP $CODE"; sleep 5
+          done
+          echo "::error::Healthcheck falhou em $URL"; tail -c 200 /tmp/hc || true; exit 1
+
+  test-e2e:
+    name: Teste E2E
+    needs: [precheck]
+    uses: ./.github/workflows/e2e.yml
+    secrets: inherit
+    with:
+      branch: main
+
+  security_final:
+    name: 🔐 Security Suite
+    needs: [test-e2e]
+    if: success()
+    uses: ./.github/workflows/security_final.yml
+    secrets: inherit
+
+  call-deploy:
+    name: 🚀 Deploy Final
+    needs: [security_final]
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      branch: main
