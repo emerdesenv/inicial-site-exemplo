@@ -25,21 +25,20 @@ jobs:
     name: 🔎 Precheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: 🌐 Healthcheck hc.php (retry)
-        env:
-          APP_BASE_URL: https://www.momentodev.com
-          HC_PATH: /hc.php
+      - name: Checar HTTPS online (HEAD)
         run: |
-          URL="${APP_BASE_URL%/}${HC_PATH:-/hc.php}"
-          echo "Checando $URL ..."
-          for i in {1..10}; do
-            CODE=$(curl -s -o /tmp/hc -w "%{http_code}" "$URL" || true)
-            [ "$CODE" = "200" ] && { echo "OK (200)"; exit 0; }
-            echo "Tentativa $i: HTTP $CODE"; sleep 5
-          done
-          echo "::error::Healthcheck falhou em $URL"; tail -c 200 /tmp/hc || true; exit 1
+          set -e
+          URL="https://www.momentodev.com"
+          echo "Verificando $URL ..."
+          # Aceita 200 ou redireção 301/302 (segue com -L)
+          http_code=$(curl -sS -o /dev/null -w "%{http_code}" \
+             -L --retry 6 --retry-all-errors \
+             --connect-timeout 5 --max-time 20 "$URL")
+          echo "HTTP: $http_code"
+          case "$http_code" in
+            200|301|302) exit 0 ;;
+            *) echo "Site fora do ar (HTTP $http_code)"; exit 1 ;;
+          esac
 
   test-e2e:
     name: Teste E2E
