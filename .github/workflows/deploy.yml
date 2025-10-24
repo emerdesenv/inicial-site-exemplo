@@ -27,10 +27,10 @@ jobs:
           test -n "${{ secrets.HG_SSH_KEY }}" || \
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 
-  name: Deploy HostGator (SSH)
-  
   deploy:
+    name: Deploy HostGator (SSH)
     runs-on: ubuntu-latest
+
     steps:
       - name: git pull no servidor
         uses: appleboy/ssh-action@v1.0.3
