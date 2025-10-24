@@ -6,6 +6,7 @@ on:
       - beta
     paths:
       - 'src/**'
+      - 'index.html'
       - 'README.md'
   workflow_dispatch: {}
 

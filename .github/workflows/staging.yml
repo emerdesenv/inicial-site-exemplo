@@ -6,9 +6,7 @@ on:
       - main
     paths:
       - 'src/**'
-      - 'Dockerfile'
-      - 'env-example.txt'
-      - 'docker-compose.yml'
+      - 'index.html'
       - 'README.md'
   workflow_dispatch: {}
 
