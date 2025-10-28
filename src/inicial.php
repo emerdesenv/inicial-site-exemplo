@@ -3,7 +3,7 @@
     
     if($result = $mysqli->query($sql)) {
         while($row = $result->fetch_assoc()) {
-            //Faz nada
+            //Faz nada, ainda nada
         }
     }
 ?>

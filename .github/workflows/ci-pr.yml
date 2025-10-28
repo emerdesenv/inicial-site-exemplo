@@ -4,10 +4,6 @@ on:
   pull_request:
     branches:
       - beta
-    paths:
-      - 'src/**'
-      - 'index.html'
-      - 'README.md'
   workflow_dispatch: {}
 
 permissions:
