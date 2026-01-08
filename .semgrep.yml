@@ -1,0 +1,45 @@
+rules:
+  # 1) Detecção direta: atribuição de string que contém $id_usuario (interpolação)
+  - id: php-sqli-id_usuario-assignment
+    languages: [php]
+    severity: ERROR
+    message: "Possível SQL injection: string SQL atribuída contendo $id_usuario. Use prepared statements."
+    pattern: $X = "$ANY"
+    metavariable-regex:
+      metavariable: $ANY
+      regex: '\$id_usuario'
+
+  # 2) Detecção de concatenação na atribuição ($sql = "..." . $var ...)
+  - id: php-sqli-assign-concat
+    languages: [php]
+    severity: WARNING
+    message: "Possível SQL injection: concatenação em atribuição (uso de '.') — prefira prepared statements."
+    patterns:
+      - pattern: $SQL = $A . $B
+      - pattern: $SQL = $A . $B . $C
+
+  # 3) Detecção: IN ( $placeholders ) onde a lista é uma variável
+  - id: php-sqli-in-placeholder
+    languages: [php]
+    severity: WARNING
+    message: "Possível SQLi: IN(...) usando variável (ex.: IN ($placeholders)). Construa placeholders parametrizados e bind."
+    pattern-regex: 'IN\s*\(\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\)'
+
+  # 4) Uso direto em query() com string contendo variável (ex: $mysqli->query("... $id_usuario ..."))
+  - id: php-sqli-query-interp
+    languages: [php]
+    severity: ERROR
+    message: "Possível SQL injection: query() recebe string contendo variável. Use prepared statements e bind."
+    patterns:
+      - pattern: $DB->query("$Q")
+      - pattern: mysqli_query($C, "$Q")
+    metavariable-regex:
+      metavariable: $Q
+      regex: '\$[A-Za-z_][A-Za-z0-9_]*'
+
+  # 5) Uso de query() passando uma variável (captura casos gerais; combinamos com regra (1) que detecta onde essa variável foi criada)
+  - id: php-sqli-query-variable
+    languages: [php]
+    severity: WARNING
+    message: "query() recebendo variável — verifique se a variável de SQL foi construída de forma segura (prepared statements)."
+    pattern: $DB->query($Q)
