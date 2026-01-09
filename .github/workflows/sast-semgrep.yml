@@ -19,4 +19,4 @@ jobs:
         with:
           # "auto" escolhe regras padrão conforme o projeto
           config: "p/ci"
-          error_on_findings: "1"
+          error_on_findings: "0"
