@@ -21,9 +21,9 @@ jobs:
           target: 'https://www.momentodev.com/'
           cmd_options: >-
             -a -m ${{ inputs.zap_minutes }} -J momento-dev.json
-      - name: Publicar relatório ZAP (casa-servidor)
+      - name: Publicar relatório ZAP (inicial-site-exemplo)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: zap-report-casa-servidor
+          name: zap-report-inicial-site-exemplo
           path: momento-dev.json

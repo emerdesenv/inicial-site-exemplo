@@ -35,7 +35,7 @@ jobs:
       - name: git pull no servidor
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HG_SSH_HOST }}   # ex: momentodev.com:22
+          host: ${{ secrets.HG_SSH_HOST }}
           username: ${{ secrets.HG_SSH_USER }}
           key: ${{ secrets.HG_SSH_KEY }}
           passphrase: ${{ secrets.HG_SSH_PASSPHRASE }}
@@ -43,7 +43,7 @@ jobs:
           script: |
             set -Eeuo pipefail
 
-            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
+            REPO_DIR="${{ secrets.REPO_DIR }}"
 
             echo ">> Atualizando $REPO_DIR"
             if [ ! -d "$REPO_DIR/.git" ]; then
