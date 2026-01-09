@@ -2,7 +2,8 @@ name: DAST - OWASP ZAP (Baseline) com relatório
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read

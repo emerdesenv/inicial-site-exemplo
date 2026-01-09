@@ -2,9 +2,8 @@ name: SCA - Trivy (filesystem)
 
 on:
   push:
-    branches:
-      - main
-      
+  pull_request:
+
 jobs:
   sca-trivy-fs:
     runs-on: ubuntu-latest
