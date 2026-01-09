@@ -138,3 +138,9 @@ jobs:
     needs: secrets-scan
     if: success()
     uses: ./.github/workflows/security_suite.yml
+
+  security_suite:
+    name: 🔐 Suite Unity (Jest)
+    needs: security_osv
+    if: success()
+    uses: ./.github/workflows/suite_jest.yml

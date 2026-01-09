@@ -45,7 +45,7 @@ jobs:
           script: |
             set -Eeuo pipefail
 
-            REPO_DIR="${{ secrets.REPO_DIR }}"
+            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
 
             echo ">> Atualizando $REPO_DIR"
             if [ ! -d "$REPO_DIR/.git" ]; then

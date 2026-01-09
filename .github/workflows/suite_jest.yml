@@ -1,0 +1,31 @@
+name: Teste Jest
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Testes Jest"
+        required: false
+        type: string
+        default: "main"
+
+jobs:
+  test:
+    name: 🧪 Testes com Jest
+    runs-on: ubuntu-latest
+   
+    steps:
+      - name: 🚀 Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🧪 Rodar os testes do Jest
+        run: npm test
+
+      - name: 📂 Upload das evidências de teste
+        uses: actions/upload-artifact@v4
+        with:
+          name: 📑 Evidências dos Testes
+          path: relatorio.html
