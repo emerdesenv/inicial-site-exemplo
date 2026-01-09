@@ -1,0 +1,23 @@
+name: SCA - Análise de Dependências com Trivy
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sca:
+    name: Rodar SCA (Trivy)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Trivy
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 1
