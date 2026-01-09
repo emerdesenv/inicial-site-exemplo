@@ -4,9 +4,9 @@ rules:
     languages: [php]
     severity: ERROR
     message: "Possível SQL injection: string SQL atribuída contendo $id_usuario. Use prepared statements."
-    pattern: $X = "$ANY"
+    pattern: $X = "$S"
     metavariable-regex:
-      metavariable: $ANY
+      metavariable: $S
       regex: '\$id_usuario'
 
   # 2) Detecção de concatenação na atribuição ($sql = "..." . $var ...)
