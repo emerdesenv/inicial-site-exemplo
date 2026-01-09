@@ -18,7 +18,7 @@ jobs:
       - name: Rodar OWASP ZAP Baseline Scan (gera relatórios)
         uses: zaproxy/action-baseline@v0.13.0
         with:
-          target: "http://localhost:3000/"
+          target: "https://www.momentodev.com/"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a -J zap-report.json -r zap-report.html"
         env:
