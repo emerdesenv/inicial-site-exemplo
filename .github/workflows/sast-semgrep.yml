@@ -1,0 +1,22 @@
+name: SAST - Semgrep (Static Code Scan)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sast:
+    name: Rodar SAST com Semgrep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      # Executa o Semgrep com regras prontas (p/ demonstração didática)
+      - name: Executar Semgrep (SAST)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          # "auto" escolhe regras padrão conforme o projeto
+          config: "p/ci"
+          error_on_findings: "0"
