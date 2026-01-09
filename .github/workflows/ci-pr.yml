@@ -129,7 +129,7 @@ jobs:
   
   security_osv:
     name: 🔐 Security Audit (OSV + Postinstall Block)
-    # needs: secrets-scan
+    needs: secrets-scan
     if: success()
     uses: ./.github/workflows/security-audit.yml
   
