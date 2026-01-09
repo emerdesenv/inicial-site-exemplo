@@ -3,7 +3,7 @@ name: SAST - Semgrep (Static Code Scan)
 on:
   push:
     branches:
-      - main
+      - teste
 
 jobs:
   sast:

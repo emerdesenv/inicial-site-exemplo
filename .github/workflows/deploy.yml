@@ -12,6 +12,7 @@ on:
       HG_SSH_HOST:     { required: false }
       HG_SSH_USER:     { required: false }
       HG_SSH_KEY:      { required: false }
+      REPO_DIR:        { required: false }
       DISCORD_WEBHOOK: { required: false }
 
 jobs:
@@ -24,6 +25,7 @@ jobs:
         run: |
           test -n "${{ secrets.HG_SSH_HOST }}" && \
           test -n "${{ secrets.HG_SSH_USER }}" && \
+          test -n "${{ secrets.REPO_DIR }}" && \
           test -n "${{ secrets.HG_SSH_KEY }}" || \
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 

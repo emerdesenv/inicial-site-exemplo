@@ -3,7 +3,7 @@ name: SCA - Trivy (filesystem)
 on:
   push:
     branches:
-      - main
+      - teste
 
 jobs:
   sca-trivy-fs:
