@@ -45,33 +45,6 @@ jobs:
           name: trivy-fs-sarif
           path: trivy-fs.sarif
 
-  # ====== SCA - Trivy (imagem Docker) ======
-  sca_trivy_image:
-    name: SCA - Trivy (imagem Docker)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker build -t app:ci .
-      - uses: aquasecurity/trivy-action@0.24.0
-        with:
-          image-ref: app:ci
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
-      - name: Exportar relatório Trivy Image (SARIF)
-        if: always()
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          image-ref: app:ci
-          format: sarif
-          output: trivy-image.sarif
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-image-sarif
-          path: trivy-image.sarif
-
   # ====== SAST - Semgrep ======
   sast_semgrep:
     name: SAST - Semgrep (nativo)

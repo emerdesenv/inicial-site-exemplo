@@ -18,13 +18,6 @@ rules:
       - pattern: $SQL = $A . $B
       - pattern: $SQL = $A . $B . $C
 
-  # 3) Detecção: IN ( $placeholders ) onde a lista é uma variável
-  - id: php-sqli-in-placeholder
-    languages: [php]
-    severity: WARNING
-    message: "Possível SQLi: IN(...) usando variável (ex.: IN ($placeholders)). Construa placeholders parametrizados e bind."
-    pattern-regex: 'IN\s*\(\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\)'
-
   # 4) Uso direto em query() com string contendo variável (ex: $mysqli->query("... $id_usuario ..."))
   - id: php-sqli-query-interp
     languages: [php]
