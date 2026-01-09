@@ -4,9 +4,9 @@ rules:
     languages: [php]
     severity: ERROR
     message: "Possível SQL injection: string SQL atribuída contendo $id_usuario. Use prepared statements."
-    pattern: $X = "$S"
+    pattern: $X = "$ANY"
     metavariable-regex:
-      metavariable: $S
+      metavariable: $ANY
       regex: '\$id_usuario'
 
   # 2) Detecção de concatenação na atribuição ($sql = "..." . $var ...)
@@ -36,3 +36,6 @@ rules:
     severity: WARNING
     message: "query() recebendo variável — verifique se a variável de SQL foi construída de forma segura (prepared statements)."
     pattern: $DB->query($Q)
+  
+
+  #.semgrep.yml
