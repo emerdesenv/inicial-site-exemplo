@@ -1,4 +1,4 @@
-name: SCA - Análise de Dependências com Trivy
+name: SCA - Trivy (CLI)
 
 on:
   push:
@@ -6,18 +6,19 @@ on:
 
 jobs:
   sca:
-    name: Rodar SCA (Trivy)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Instalar Trivy
-        uses: aquasecurity/trivy-action@v0.20.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          severity: HIGH,CRITICAL
-          exit-code: 1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb stable main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Rodar SCA (filesystem)
+        run: |
+          trivy fs --severity HIGH,CRITICAL --exit-code 1 --format table .
