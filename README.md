@@ -1,4 +1,4 @@
-# Exemplos Simples de Projetos 
+# Exemplos Simples de Projetos
 
 * Site de Testes e Exemplos Básicos
 * CI/CD padrão implementada a cada commit

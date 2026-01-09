@@ -139,7 +139,7 @@ jobs:
     if: success()
     uses: ./.github/workflows/security_suite.yml
 
-  security_suite:
+  jest_suite:
     name: 🔐 Suite Unity (Jest)
     needs: security_osv
     if: success()
