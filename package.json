@@ -15,5 +15,8 @@
         "cypress-mochawesome-reporter": "^3.8.2",
         "cypress-multi-reporters": "^2.0.4",
         "dotenv": "^16.4.7"
+    },
+    "dependencies": {
+        "lodash": "4.17.20"
     }
 }
