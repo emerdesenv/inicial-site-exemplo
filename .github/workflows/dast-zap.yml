@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   dast:
     name: Rodar DAST com OWASP ZAP
@@ -13,13 +18,11 @@ jobs:
       - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      # Simula uma aplicação rodando (exemplo simples com container)
-      - name: Subir aplicação para teste
-        run: |
-          docker run -d -p 3000:3000 --name app-test node:18-alpine sh -c "npm install -g serve && serve /usr/share/doc"
       - name: Rodar OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.13.0
         with:
           target: "https://www.momentodev.com/"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

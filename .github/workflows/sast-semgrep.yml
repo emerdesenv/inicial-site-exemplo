@@ -2,6 +2,8 @@ name: SAST - Semgrep (Static Code Scan)
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:

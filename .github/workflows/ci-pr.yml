@@ -3,7 +3,7 @@ name: CI - Testes
 on:
   pull_request:
     branches:
-      - beta
+      - main #trocar para beta
   workflow_dispatch: {}
 
 permissions:
