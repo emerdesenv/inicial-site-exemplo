@@ -2,7 +2,8 @@ name: SCA - Trivy (filesystem)
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
 
 jobs:
   sca-trivy-fs:

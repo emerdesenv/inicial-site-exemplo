@@ -3,7 +3,7 @@ name: CI - Testes
 on:
   pull_request:
     branches:
-      - main #trocar para beta
+      - beta
   workflow_dispatch: {}
 
 permissions:
@@ -16,116 +16,18 @@ concurrency:
 
 jobs:
   secrets-scan:
-    name: 🔑 Secrets Scan (Gitleaks → SARIF + JSON → CSV + gate)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    env:
-      GITLEAKS_VERSION: "v8.18.4"
-      SARIF_PATH: "gitleaks.sarif"
-      JSON_PATH: "gitleaks.json"
-      CSV_PATH: "gitleaks.csv"
+
     steps:
-      - name: 📥 Checkout
+      - name: Checkout do repositório
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
-      - name: 🧰 Instalar Gitleaks (binário OSS)
-        run: |
-          set -euo pipefail
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz" -o gitleaks.tar.gz
-          tar -xzf gitleaks.tar.gz gitleaks
-          sudo mv gitleaks /usr/local/bin/gitleaks
-          gitleaks version
-
-      - name: 🚨 Rodar Gitleaks (gera SARIF e JSON, sem falhar aqui)
-        run: |
-          set -euo pipefail
-          # SARIF p/ quem usa scanners e viewers
-          gitleaks detect --source . --report-format sarif --report-path "${SARIF_PATH}" --exit-code 0 || true
-          # JSON nativo p/ converter CSV com estabilidade
-          gitleaks detect --source . --report-format json  --report-path "${JSON_PATH}"  --exit-code 0 || true
-
-          # SARIF mínimo se vazio
-          if [ ! -s "${SARIF_PATH}" ]; then
-            echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","rules":[]}},"results":[]}]}'> "${SARIF_PATH}"
-          fi
-          # JSON mínimo se vazio
-          if [ ! -s "${JSON_PATH}" ]; then
-            echo '[]' > "${JSON_PATH}"
-          fi
-
-      - name: 🔁 Converter SARIF → CSV (primeira tentativa)
-        id: csv1
-        run: |
-          set -euo pipefail
-          sudo apt-get update -y && sudo apt-get install -y jq
-          echo '"ruleId","description","file","line","tags","entropy","secret_preview"' > "${CSV_PATH}"
-          jq -r '
-            .runs // [] | map(.results // []) | add
-            | map(select(type=="object"))
-            | .[]?
-            | [
-                (.ruleId // ""),
-                ((.message?.text // .message // "") | tostring | gsub("\r?\n"; " ")),
-                (.locations[0]?.physicalLocation?.artifactLocation?.uri // ""),
-                (.locations[0]?.physicalLocation?.region?.startLine // ""),
-                ((.properties?.tags // []) | join("|")),
-                (.properties?.entropy // ""),
-                (.properties?.redacted // .properties?.secret // "")
-              ] | @csv
-          ' "${SARIF_PATH}" >> "${CSV_PATH}" || true
-
-          # conta linhas (sem cabeçalho)
-          L=$(tail -n +2 "${CSV_PATH}" | sed '/^\s*$/d' | wc -l | tr -d ' ')
-          echo "lines=${L}" >> "$GITHUB_OUTPUT"
-
-      - name: 🔁 Converter JSON → CSV (fallback se SARIF não rendeu linhas)
-        if: ${{ steps.csv1.outputs.lines == '0' }}
-        id: csv2
-        run: |
-          set -euo pipefail
-          # sobrescreve (cabeçalho + linhas do JSON nativo)
-          echo '"ruleId","description","file","line","tags","entropy","secret_preview"' > "${CSV_PATH}"
-          jq -r '
-            map(select(type=="object")) | .[]?
-            | [
-                (.RuleID // .ruleId // ""),
-                (.Description // .message // "" | tostring | gsub("\r?\n"; " ")),
-                (.File // .file // ""),
-                (.StartLine // .startLine // ""),
-                ((.Tags // .tags // []) | join("|")),
-                (.Entropy // .entropy // ""),
-                # preview seguro do segredo (campos variam por versão)
-                (.Secret // .Redacted // .redacted // "" | tostring | if (.|length)>64 then (.[:61] + "...") else . end)
-              ] | @csv
-          ' "${JSON_PATH}" >> "${CSV_PATH}" || true
-
-      - name: 📦 Upload Artefatos (SARIF + JSON + CSV) — sempre
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitleaks-reports
-          path: |
-            ${{ env.SARIF_PATH }}
-            ${{ env.JSON_PATH }}
-            ${{ env.CSV_PATH }}
-          if-no-files-found: warn
-
-      - name: 🚨 Gate - falhar se houver leaks (conta linhas do CSV)
-        if: always()
-        run: |
-          set -euo pipefail
-          LEAKS=$(tail -n +2 "${CSV_PATH}" | sed '/^\s*$/d' | wc -l | tr -d ' ')
-          echo "Leaks (CSV): $LEAKS"
-          if [ "$LEAKS" -gt 0 ]; then
-            echo "🚫 Secrets encontrados. Abortando pipeline." >&2
-            sed -n '1,50p' "${CSV_PATH}" || true
-            exit 1
-          fi
-          echo "✅ Nenhum leak detectado. Segue o pipeline."
+      - name: Rodar Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   security_osv:
     name: 🔐 Security Audit (OSV + Postinstall Block)
