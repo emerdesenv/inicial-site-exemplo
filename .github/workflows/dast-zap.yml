@@ -1,4 +1,4 @@
-name: DAST - Testes Dinâmicos de Segurança (OWASP ZAP)
+name: DAST - OWASP ZAP (Baseline) com relatório
 
 on:
   push:
@@ -6,23 +6,29 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 jobs:
   dast:
-    name: Rodar DAST com OWASP ZAP
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      - name: Rodar OWASP ZAP Baseline Scan
+      - name: Rodar OWASP ZAP Baseline Scan (gera relatórios)
         uses: zaproxy/action-baseline@v0.13.0
         with:
-          target: "https://www.momentodev.com/"
+          target: "http://localhost:3000/"
           rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a"
+          cmd_options: "-a -J zap-report.json -r zap-report.html"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload relatório ZAP (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            zap-report.html
+            zap-report.json
