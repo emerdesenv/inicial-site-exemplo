@@ -14,8 +14,7 @@ jobs:
         run: |
           test -n "${{ secrets.HG_SSH_HOST }}" && \
           test -n "${{ secrets.HG_SSH_USER }}" && \
-          test -n "${{ secrets.HG_SSH_KEY }}" && \
-          test -n "${{ secrets.REPO_DIR }}" || \
+          test -n "${{ secrets.HG_SSH_KEY }}" || \
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 
   deploy:
