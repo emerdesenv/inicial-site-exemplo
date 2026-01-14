@@ -35,23 +35,37 @@ jobs:
             set -Eeuo pipefail
 
             REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
-            TAG="${{ github.ref_name }}"
+            TAG="v2026.10.2"   # no Actions, troque por: TAG="${{ github.ref_name }}"
 
             echo ">> Deploy da TAG: $TAG"
             echo ">> Diretório: $REPO_DIR"
 
-            if [ ! -d "$REPO_DIR/.git" ]; then
-              echo "ERRO: repositório inválido"; exit 2
+            # ✅ validação robusta: funciona se .git for pasta OU arquivo
+            if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              echo "ERRO: Git não reconheceu um repositório em $REPO_DIR"
+              echo "DEBUG: listagem do diretório:"
+              ls -la "$REPO_DIR" || true
+              exit 2
             fi
 
+            # pega tags e atualiza refs
             git -C "$REPO_DIR" fetch --all --tags --prune
+
+            # garante que a tag existe no servidor
+            if ! git -C "$REPO_DIR" show-ref --verify --quiet "refs/tags/$TAG"; then
+              echo "ERRO: TAG '$TAG' não existe no repositório."
+              echo "Dica: você fez push dela? (git push origin $TAG)"
+              exit 3
+            fi
+
+            # checkout da tag (produção fixa)
             git -C "$REPO_DIR" checkout -f "$TAG"
 
-            # permissões padrão
+            # permissões recomendadas
             find "$REPO_DIR" -type d -exec chmod 755 {} \;
             find "$REPO_DIR" -type f -exec chmod 644 {} \;
 
-            echo ">> Deploy concluído"
+            echo ">> OK"
 
   notificacao:
     name: 📩 Notificação Discord
