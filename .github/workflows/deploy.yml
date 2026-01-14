@@ -6,24 +6,12 @@ on:
       - "v*"
 
 jobs:
-  verificar-variaveis:
-    name: 🔒 Variáveis de Ambiente
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Validando variáveis de Ambiente
-        run: |
-          test -n "${{ secrets.HG_SSH_HOST }}" && \
-          test -n "${{ secrets.HG_SSH_USER }}" && \
-          test -n "${{ secrets.HG_SSH_KEY }}" || \
-          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
-
   deploy:
     name: 🚀 Deploy HostGator (TAG via SSH)
     runs-on: ubuntu-latest
-    needs: [verificar-variaveis]
 
     steps:
-      - name: Deploy da TAG no servidor
+      - name: Deploy da TAG no servidor (com debug)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HG_SSH_HOST }}
@@ -33,37 +21,50 @@ jobs:
           script: |
             set -Eeuo pipefail
 
-            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
             TAG="${{ github.ref_name }}"
+            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
 
             echo ">> Deploy da TAG: $TAG"
-            echo ">> Diretório: $REPO_DIR"
+            echo ">> REPO_DIR esperado: $REPO_DIR"
+            echo ">> DEBUG whoami: $(whoami)"
+            echo ">> DEBUG pwd: $(pwd)"
+            echo ">> DEBUG HOME: $HOME"
 
-            # garante que a pasta existe
+            echo ">> DEBUG list /home4:"
+            ls -la /home4 || true
+
+            echo ">> DEBUG list /home4/hg6ce559:"
+            ls -la /home4/hg6ce559 || true
+
+            echo ">> DEBUG list public_html:"
+            ls -la /home4/hg6ce559/public_html || true
+
+            echo ">> DEBUG list momentodev.com:"
+            ls -la /home4/hg6ce559/public_html/momentodev.com || true
+
+            # Agora sim, valida o diretório final
             if [ ! -e "$REPO_DIR" ]; then
               echo "ERRO: Diretório não existe: $REPO_DIR"
               exit 2
             fi
 
-            # valida que é repo git (independente de .git ser arquivo ou pasta)
+            # valida que é repo git
             if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
               echo "ERRO: Diretório não é um repositório Git"
+              ls -la "$REPO_DIR" || true
+              ls -la "$REPO_DIR/.git" || true
               exit 3
             fi
 
-            # atualiza refs e tags
             git -C "$REPO_DIR" fetch --all --tags --prune
 
-            # garante que a tag existe
             if ! git -C "$REPO_DIR" show-ref --verify --quiet "refs/tags/$TAG"; then
               echo "ERRO: TAG '$TAG' não encontrada"
               exit 4
             fi
 
-            # checkout da tag (produção fixa na versão)
             git -C "$REPO_DIR" checkout -f "$TAG"
 
-            # permissões
             find "$REPO_DIR" -type d -exec chmod 755 {} \;
             find "$REPO_DIR" -type f -exec chmod 644 {} \;
 
