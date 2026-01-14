@@ -34,7 +34,7 @@ jobs:
             set -Eeuo pipefail
 
             TAG="${{ github.ref_name }}"
-            REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
+            REPO_DIR="/home2/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
 
             echo ">> Deploy da TAG: $TAG"
             echo ">> REPO_DIR esperado: $REPO_DIR"
@@ -42,17 +42,17 @@ jobs:
             echo ">> DEBUG pwd: $(pwd)"
             echo ">> DEBUG HOME: $HOME"
 
-            echo ">> DEBUG list /home4:"
-            ls -la /home4 || true
+            echo ">> DEBUG list /home2:"
+            ls -la /home2 || true
 
-            echo ">> DEBUG list /home4/hg6ce559:"
-            ls -la /home4/hg6ce559 || true
+            echo ">> DEBUG list /home2/hg6ce559:"
+            ls -la /home2/hg6ce559 || true
 
             echo ">> DEBUG list public_html:"
-            ls -la /home4/hg6ce559/public_html || true
+            ls -la /home2/hg6ce559/public_html || true
 
             echo ">> DEBUG list momentodev.com:"
-            ls -la /home4/hg6ce559/public_html/momentodev.com || true
+            ls -la /home2/hg6ce559/public_html/momentodev.com || true
 
             # Agora sim, valida o diretório final
             if [ ! -e "$REPO_DIR" ]; then
