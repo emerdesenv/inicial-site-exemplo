@@ -1,19 +1,9 @@
 name: Teste e Deploy no Jelastic
 
 on:
-  workflow_call:
-    inputs:
-      branch:
-        description: "Deploy"
-        required: false
-        type: string
-        default: "main"
-    secrets:
-      HG_SSH_HOST:     { required: false }
-      HG_SSH_USER:     { required: false }
-      HG_SSH_KEY:      { required: false }
-      REPO_DIR:        { required: false }
-      DISCORD_WEBHOOK: { required: false }
+  push:
+    tags:
+      - "v*"
 
 jobs:
   verificar-variaveis:
@@ -59,5 +49,3 @@ jobs:
             find "$REPO_DIR" -type f -exec chmod 644 {} \;
 
             echo ">> OK"
-
- 
