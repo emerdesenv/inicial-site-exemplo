@@ -69,7 +69,7 @@ jobs:
 
             echo ">> Deploy concluído com sucesso"
 
-notificacao:
+  notificacao:
     name: 📩 Envio Notificação
     runs-on: ubuntu-latest
     needs: [verificar-variaveis, deploy]
