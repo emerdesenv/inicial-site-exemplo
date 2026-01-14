@@ -1,0 +1,57 @@
+name: 🏷️ Criar TAG de Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tipo:
+        description: "Tipo de versão"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  criar-tag:
+    name: Criar TAG automaticamente
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Buscar última TAG
+        id: last_tag
+        run: |
+          git fetch --tags
+          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+          echo "last=$LAST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Calcular nova versão
+        id: version
+        run: |
+          LAST="${{ steps.last_tag.outputs.last }}"
+          [ -z "$LAST" ] && LAST="v0.0.0"
+
+          VERSION="${LAST#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          case "${{ inputs.tipo }}" in
+            patch) PATCH=$((PATCH+1)) ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+          esac
+
+          NEW="v$MAJOR.$MINOR.$PATCH"
+          echo "new=$NEW" >> $GITHUB_OUTPUT
+
+      - name: Criar e enviar TAG
+        run: |
+          TAG="${{ steps.version.outputs.new }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
