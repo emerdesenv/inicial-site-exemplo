@@ -6,12 +6,24 @@ on:
       - "v*"
 
 jobs:
+  verificar-variaveis:
+    name: 🔒 Variáveis de Ambiente
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Validando variáveis de Ambiente
+        run: |
+          test -n "${{ secrets.HG_SSH_HOST }}" && \
+          test -n "${{ secrets.HG_SSH_USER }}" && \
+          test -n "${{ secrets.HG_SSH_KEY }}" || \
+          (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
+
   deploy:
     name: 🚀 Deploy HostGator (TAG via SSH)
     runs-on: ubuntu-latest
+    needs: [verificar-variaveis]
 
     steps:
-      - name: Deploy da TAG no servidor (com debug)
+      - name: Deploy da TAG no servidor
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HG_SSH_HOST }}
