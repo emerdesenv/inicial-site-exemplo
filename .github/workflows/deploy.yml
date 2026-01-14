@@ -35,30 +35,32 @@ jobs:
             set -Eeuo pipefail
 
             REPO_DIR="/home4/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
-            TAG="v2026.10.2"   # no Actions, troque por: TAG="${{ github.ref_name }}"
+            TAG="${{ github.ref_name }}"   # quando rodar por tag v*
 
             echo ">> Deploy da TAG: $TAG"
             echo ">> Diretório: $REPO_DIR"
 
-            # ✅ validação robusta: funciona se .git for pasta OU arquivo
+            # ✅ validação robusta (funciona se .git for pasta OU arquivo)
             if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
               echo "ERRO: Git não reconheceu um repositório em $REPO_DIR"
               echo "DEBUG: listagem do diretório:"
               ls -la "$REPO_DIR" || true
+              echo "DEBUG: .git:"
+              ls -la "$REPO_DIR/.git" || true
               exit 2
             fi
 
-            # pega tags e atualiza refs
+            # ✅ importante: buscar tags também
             git -C "$REPO_DIR" fetch --all --tags --prune
 
-            # garante que a tag existe no servidor
+            # garante que a tag existe localmente depois do fetch
             if ! git -C "$REPO_DIR" show-ref --verify --quiet "refs/tags/$TAG"; then
-              echo "ERRO: TAG '$TAG' não existe no repositório."
-              echo "Dica: você fez push dela? (git push origin $TAG)"
+              echo "ERRO: TAG '$TAG' não encontrada no repositório local."
+              echo "Dica: confirme que você deu push da tag no GitHub."
               exit 3
             fi
 
-            # checkout da tag (produção fixa)
+            # checkout na tag (produção fica travada na versão)
             git -C "$REPO_DIR" checkout -f "$TAG"
 
             # permissões recomendadas
