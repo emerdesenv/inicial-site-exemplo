@@ -29,7 +29,7 @@ jobs:
           review_comment_lgtm: false
          
           # Prompt personalizado
-          prompt: |
+          system_message: |
             Você é um revisor técnico de código atuando em um pipeline de CI/CD com foco em DevSecOps.
 
             Analise exclusivamente as alterações presentes neste Pull Request.
