@@ -22,6 +22,7 @@ jobs:
         uses: anc95/ChatGPT-CodeReview@v1
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # Modelo que você deseja usar
           model: gpt-5
