@@ -2,7 +2,7 @@ name: AI PR Review - DevSecOps
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened]
 
 permissions:
   contents: read
@@ -39,36 +39,40 @@ jobs:
             de CI/CD com foco em DevSecOps.
 
             Analise exclusivamente as alterações presentes neste Pull Request.
-            NÃO avalie arquivos ou trechos de código que não foram modificados.
+            NÃO avalie arquivos, funções ou trechos de código que não foram modificados.
 
             Durante a revisão, considere:
 
             1. Qualidade do código
-               - Legibilidade e clareza
-               - Código duplicado
-               - Boas práticas
+              - Legibilidade e clareza
+              - Código duplicado introduzido neste PR
+              - Aderência a boas práticas
 
             2. Segurança
-               - Validação de entradas
-               - Tratamento de erros
-               - Possíveis vulnerabilidades comuns
+              - Validação de entradas adicionadas ou alteradas
+              - Tratamento de erros
+              - Possíveis vulnerabilidades comuns introduzidas pelo PR
+                (ex.: falta de validação, dados sensíveis, uso inseguro de APIs)
 
             3. Manutenibilidade
-               - Nomes de variáveis e funções
-               - Complexidade desnecessária
-               - Sugestões simples de refatoração
+              - Nomes de variáveis, funções e métodos
+              - Complexidade desnecessária
+              - Sugestões simples de refatoração
+                (evite mudanças grandes ou fora do escopo do PR)
 
             4. Boas práticas DevOps
-               - Impacto da alteração no pipeline
-               - Risco de regressão
-               - Clareza para revisões futuras
+              - Impacto da alteração no pipeline ou no deploy
+              - Risco de regressão
+              - Clareza para futuras revisões e manutenção
 
             Formato da resposta:
             - Seja claro e objetivo
             - Priorize problemas críticos
-            - Separe problemas de sugestões
-            - Explique o motivo das recomendações
+            - Separe problemas de sugestões de melhoria
+            - Sempre explique o motivo da recomendação
+            - Quando possível, comente diretamente na linha afetada
 
             Contexto:
-            Este Pull Request faz parte de um projeto educacional
-            e o objetivo é orientar o desenvolvedor antes do merge.
+            Este Pull Request faz parte de um projeto real.
+            O objetivo é orientar o desenvolvedor e melhorar a qualidade
+            do código antes do merge, não reescrever o projeto.
