@@ -1,0 +1,62 @@
+name: ⏪ Rollback Produção (TAG)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Informe a TAG para rollback (ex: v2026.10.7)"
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    name: ⏪ Rollback por TAG
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Rollback da TAG no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HG_SSH_HOST }}
+          username: ${{ secrets.HG_SSH_USER }}
+          key: ${{ secrets.HG_SSH_KEY }}
+          passphrase: ${{ secrets.HG_SSH_PASSPHRASE }}
+          script: |
+            set -Eeuo pipefail
+
+            REPO_DIR="/home2/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
+            TAG="${{ inputs.tag }}"
+
+            echo ">> ROLLBACK para TAG: $TAG"
+            echo ">> Diretório: $REPO_DIR"
+
+            # garante que o diretório existe
+            if [ ! -e "$REPO_DIR" ]; then
+              echo "ERRO: Diretório não existe: $REPO_DIR"
+              exit 2
+            fi
+
+            # valida que é repo git
+            if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              echo "ERRO: Diretório não é um repositório Git"
+              exit 3
+            fi
+
+            # atualiza refs e tags
+            git -C "$REPO_DIR" fetch --all --tags --prune
+
+            # garante que a tag existe
+            if ! git -C "$REPO_DIR" show-ref --verify --quiet "refs/tags/$TAG"; then
+              echo "ERRO: TAG '$TAG' não encontrada"
+              echo "Dica: confira as tags disponíveis com: git tag -l"
+              exit 4
+            fi
+
+            # rollback (checkout da tag)
+            git -C "$REPO_DIR" checkout -f "$TAG"
+
+            # permissões
+            find "$REPO_DIR" -type d -exec chmod 755 {} \;
+            find "$REPO_DIR" -type f -exec chmod 644 {} \;
+
+            echo ">> Rollback concluído com sucesso"
