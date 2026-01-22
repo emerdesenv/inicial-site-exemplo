@@ -2,7 +2,7 @@ name: AI PR Review - DevSecOps
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
@@ -35,8 +35,7 @@ jobs:
 
           # Prompt personalizado
           prompt: |
-            Você é um revisor técnico de código atuando em um pipeline
-            de CI/CD com foco em DevSecOps.
+            Você é um revisor técnico de código atuando em um pipeline de CI/CD com foco em DevSecOps.
 
             Analise exclusivamente as alterações presentes neste Pull Request.
             NÃO avalie arquivos, funções ou trechos de código que não foram modificados.
@@ -73,6 +72,6 @@ jobs:
             - Quando possível, comente diretamente na linha afetada
 
             Contexto:
-            Este Pull Request faz parte de um projeto real.
+            Este Pull Request faz parte de um projeto educacional.
             O objetivo é orientar o desenvolvedor e melhorar a qualidade
             do código antes do merge, não reescrever o projeto.
