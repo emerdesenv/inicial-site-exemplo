@@ -1,4 +1,4 @@
-name: 🚀 Deploy Produção (TAG)
+name: Deploy HostGator por TAG
 
 on:
   push:
@@ -10,18 +10,17 @@ jobs:
     name: 🔒 Variáveis de Ambiente
     runs-on: ubuntu-latest
     steps:
-      - name: 🔍 Validando variáveis
+      - name: 🔍 Validando variáveis de Ambiente
         run: |
           test -n "${{ secrets.HG_SSH_HOST }}" && \
           test -n "${{ secrets.HG_SSH_USER }}" && \
-          test -n "${{ secrets.HG_SSH_KEY }}" && \
-          test -n "${{ secrets.REPO_DIR }}" || \
+          test -n "${{ secrets.HG_SSH_KEY }}" || \
           (echo "❌ Variáveis de ambiente não configuradas" && exit 1)
 
   deploy:
-    name: 🚀 Deploy HostGator (TAG)
+    name: 🚀 Deploy HostGator (TAG via SSH)
     runs-on: ubuntu-latest
-    needs: verificar-variaveis
+    needs: [verificar-variaveis]
 
     steps:
       - name: Deploy da TAG no servidor
@@ -34,37 +33,70 @@ jobs:
           script: |
             set -Eeuo pipefail
 
-            REPO_DIR="${{ secrets.REPO_DIR }}"
             TAG="${{ github.ref_name }}"
+            REPO_DIR="/home2/hg6ce559/public_html/momentodev.com/inicial-site-exemplo"
 
             echo ">> Deploy da TAG: $TAG"
-            echo ">> Diretório: $REPO_DIR"
+            echo ">> REPO_DIR esperado: $REPO_DIR"
+            echo ">> DEBUG whoami: $(whoami)"
+            echo ">> DEBUG pwd: $(pwd)"
+            echo ">> DEBUG HOME: $HOME"
 
-            if [ ! -d "$REPO_DIR/.git" ]; then
-              echo "ERRO: repositório inválido"; exit 2
+            echo ">> DEBUG list /home2:"
+            ls -la /home2 || true
+
+            echo ">> DEBUG list /home2/hg6ce559:"
+            ls -la /home2/hg6ce559 || true
+
+            echo ">> DEBUG list public_html:"
+            ls -la /home2/hg6ce559/public_html || true
+
+            echo ">> DEBUG list momentodev.com:"
+            ls -la /home2/hg6ce559/public_html/momentodev.com || true
+
+            # Agora sim, valida o diretório final
+            if [ ! -e "$REPO_DIR" ]; then
+              echo "ERRO: Diretório não existe: $REPO_DIR"
+              exit 2
+            fi
+
+            # valida que é repo git
+            if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              echo "ERRO: Diretório não é um repositório Git"
+              ls -la "$REPO_DIR" || true
+              ls -la "$REPO_DIR/.git" || true
+              exit 3
             fi
 
             git -C "$REPO_DIR" fetch --all --tags --prune
+
+            if ! git -C "$REPO_DIR" show-ref --verify --quiet "refs/tags/$TAG"; then
+              echo "ERRO: TAG '$TAG' não encontrada"
+              exit 4
+            fi
+
             git -C "$REPO_DIR" checkout -f "$TAG"
 
-            # permissões padrão
             find "$REPO_DIR" -type d -exec chmod 755 {} \;
             find "$REPO_DIR" -type f -exec chmod 644 {} \;
 
-            echo ">> Deploy concluído"
+            echo ">> Deploy concluído com sucesso"
 
   notificacao:
-    name: 📩 Notificação Discord
+    name: 📩 Envio Notificação
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: [verificar-variaveis, deploy]
+
     steps:
-      - name: Enviar notificação
+      - name: Enviar notificação para Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          curl -X POST -H "Content-Type: application/json" \
+          curl -H "Content-Type: application/json" \
+          -X POST \
           -d '{
-            "username": "GitHub Actions",
-            "content": "✅ **Deploy em Produção**\n🏷️ **TAG**: `${{ github.ref_name }}`\n👤 **Usuário**: ${{ github.actor }}"
-          }' \
+                "username": "GitHub Actions", 
+                "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png", 
+                "content": "✅ **Deploy success**\n🌱 **Produto**: Site Inicial\n👤 **Usuário:** ${{ github.actor }}\n🔗 **Repositório**: ${{ github.repository }}\n🔀 **Branch**: ${{ github.ref }}\n"
+              }' \
           $DISCORD_WEBHOOK
