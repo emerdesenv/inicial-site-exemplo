@@ -18,17 +18,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: AI Code Review (GPT-5)
+      - name: AI Code Review
         uses: coderabbitai/ai-pr-reviewer@v1
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          openai_heavy_model: gpt-5
           language: pt-BR
           review_comment_lgtm: false
-         
-          # Prompt personalizado
+          review_simple_changes: false
+
+          # Modelos (compatíveis e estáveis)
+          openai_light_model: gpt-4o-mini
+          openai_heavy_model: gpt-4o
+
+          # Prompt (system_message é o campo correto)
           system_message: |
             Você é um revisor técnico de código atuando em um pipeline de CI/CD com foco em DevSecOps.
 
