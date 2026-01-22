@@ -24,15 +24,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Modelo que você deseja usar
-          model: gpt-5
-
-          # Idioma dos comentários no PR
+          openai_heavy_model: gpt-5
           language: pt-BR
-
-          # Evita comentários genéricos tipo "LGTM"
           review_comment_lgtm: false
-
+         
           # Prompt personalizado
           prompt: |
             Você é um revisor técnico de código atuando em um pipeline de CI/CD com foco em DevSecOps.
