@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apresentação ADS - 3º Ano</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .slide {
+      opacity: 0;
+      transform: translateX(100px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    
+    .progress-bar {
+      transition: width 0.4s ease-out;
+    }
+    
+    .fade-in {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .stagger-5 { animation-delay: 0.5s; }
+    
+    .glow {
+      box-shadow: 0 0 60px rgba(59, 130, 246, 0.3);
+    }
+    
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .grid-bg {
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full bg-slate-900 text-white overflow-hidden relative grid-bg"><!-- Progress Bar -->
+   <div class="absolute top-0 left-0 right-0 h-1 bg-slate-800 z-50">
+    <div id="progress" class="progress-bar h-full bg-gradient-to-r from-blue-500 to-purple-500" style="width: 8.33%"></div>
+   </div><!-- Navigation -->
+   <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50"><button id="prevBtn" class="w-12 h-12 rounded-full bg-slate-800/80 backdrop-blur border border-slate-700 flex items-center justify-center hover:bg-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+     </svg></button>
+    <div class="px-4 py-2 rounded-full bg-slate-800/80 backdrop-blur border border-slate-700"><span id="slideCounter" class="mono text-sm">01 / 13</span>
+    </div><button id="nextBtn" class="w-12 h-12 rounded-full bg-slate-800/80 backdrop-blur border border-slate-700 flex items-center justify-center hover:bg-slate-700 transition-colors">
+     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+     </svg></button>
+   </div><!-- Slide Indicators -->
+   <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-50">
+    <div id="indicators"></div>
+   </div><!-- Slides Container -->
+   <div id="slidesContainer" class="relative h-full w-full"><!-- Slide 1: Boas-vindas -->
+    <div class="slide active" data-slide="1">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl">
+       <div class="mb-6 fade-in opacity-0"><span class="inline-block px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm mono">🎓 PRIMEIRO DIA</span>
+       </div>
+       <h1 id="mainTitle" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 fade-in opacity-0 stagger-1"><span class="gradient-text">Bem-vindos ao 3º Ano</span></h1>
+       <h2 id="courseTitle" class="text-2xl md:text-3xl text-slate-400 mb-12 fade-in opacity-0 stagger-2">Análise e Desenvolvimento de Sistemas</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto fade-in opacity-0 stagger-3">
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700"><span class="text-blue-400">✦</span> Etapa decisiva da formação
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700"><span class="text-purple-400">✦</span> Consolidação do perfil profissional
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 md:col-span-2"><span class="text-cyan-400">✦</span> Preparação para o mercado de trabalho
+        </div>
+       </div>
+       <p class="mt-12 text-lg text-slate-500 italic fade-in opacity-0 stagger-4">"Este é o ano de transformar conhecimento em competência profissional."</p>
+      </div>
+     </div>
+    </div><!-- Slide 2: Professores -->
+    <div class="slide" data-slide="2">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-400 text-sm mono mb-6">👨‍🏫 EQUIPE</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Apresentação dos Professores</h2>
+       <p class="text-xl text-slate-400 mb-12">Quem estará com vocês nessa jornada</p>
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700 glow">
+         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-2xl mx-auto mb-4">
+          💼
+         </div>
+         <h3 class="text-lg font-semibold mb-2">Atuação no Mercado</h3>
+         <p class="text-slate-400 text-sm">Profissionais ativos na área de tecnologia</p>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-2xl mx-auto mb-4">
+          🛠️
+         </div>
+         <h3 class="text-lg font-semibold mb-2">Experiência Prática</h3>
+         <p class="text-slate-400 text-sm">Conhecimento aplicado em projetos reais</p>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl mx-auto mb-4">
+          🎯
+         </div>
+         <h3 class="text-lg font-semibold mb-2">Apoio Profissional</h3>
+         <p class="text-slate-400 text-sm">Desenvolvimento técnico e de carreira</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 3: Roadmap -->
+    <div class="slide" data-slide="3">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-sm mono mb-6">🗺️ ROADMAP</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Roadmap do Semestre</h2>
+       <p class="text-xl text-slate-400 mb-12">O que vocês terão neste semestre</p>
+       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="card-hover p-6 rounded-2xl bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/50">
+         <div class="text-3xl mb-3">
+          💻
+         </div>
+         <h3 class="font-semibold">Aulas Práticas</h3>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/50">
+         <div class="text-3xl mb-3">
+          🏢
+         </div>
+         <h3 class="font-semibold">Projetos Reais</h3>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-gradient-to-br from-cyan-900/50 to-cyan-800/30 border border-cyan-700/50">
+         <div class="text-3xl mb-3">
+          👥
+         </div>
+         <h3 class="font-semibold">Trabalhos em Grupo</h3>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-gradient-to-br from-pink-900/50 to-pink-800/30 border border-pink-700/50">
+         <div class="text-3xl mb-3">
+          🧩
+         </div>
+         <h3 class="font-semibold">Desafios Individuais</h3>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700 inline-block">
+        <p class="text-lg"><span class="text-yellow-400">⚡</span> <strong>Aprender fazendo</strong> será a base do semestre.</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 4: Trilhas -->
+    <div class="slide" data-slide="4">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-sm mono mb-6">📚 TRILHAS</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Trilhas do Conhecimento</h2>
+       <p class="text-xl text-slate-400 mb-12">Trilhas de Aprendizado</p>
+       <div class="space-y-4 max-w-2xl mx-auto text-left">
+        <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 card-hover">
+         <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+          📊
+         </div>
+         <div>
+          <h3 class="font-semibold">Conteúdos organizados por competências</h3>
+         </div>
+        </div>
+        <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 card-hover">
+         <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+          🎯
+         </div>
+         <div>
+          <h3 class="font-semibold">Foco em habilidades de mercado</h3>
+         </div>
+        </div>
+        <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 card-hover">
+         <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+          📈
+         </div>
+         <div>
+          <h3 class="font-semibold">Evolução progressiva de conhecimento</h3>
+         </div>
+        </div>
+       </div>
+       <div class="mt-8 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 inline-block">
+        <p class="text-yellow-400">📌 Ao final de cada trilha: <strong>Avaliação estilo papel e caneta</strong></p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 5: Trilhas Detalhadas -->
+    <div class="slide" data-slide="5">
+     <div class="h-full flex flex-col p-8 md:p-12 overflow-y-auto">
+      <div class="mb-6"><span class="inline-block px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-sm mono">📚 TRILHAS DETALHADAS</span>
+       <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-2 gradient-text">Conteúdos que Trabalharemos</h2>
+       <p class="text-xl text-slate-400">As 10 trilhas de aprendizado do semestre</p>
+      </div><!-- Grid de Trilhas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"><!-- Estrutura de Dados -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">📚</span>
+         <div>
+          <h3 class="font-semibold text-lg">Estrutura de Dados</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Algoritmos, listas, árvores, grafos e otimização de código.</p>
+        <p class="text-xs text-blue-400">💼 Mercado: Base para qualquer desenvolvedor sênior</p>
+       </div><!-- Banco de Dados -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🗄️</span>
+         <div>
+          <h3 class="font-semibold text-lg">Banco de Dados - MySQL</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">SQL, normalização, queries otimizadas e administração de dados.</p>
+        <p class="text-xs text-blue-400">💼 Mercado: Essencial para 95% das vagas</p>
+       </div><!-- Empreendedorismo -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">💰</span>
+         <div>
+          <h3 class="font-semibold text-lg">Empreendedorismo</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Precificação, modelo de negócio, proposta de valor.</p>
+        <p class="text-xs text-purple-400">💼 Mercado: Diferencial para freelancers e startups</p>
+       </div><!-- Docker -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-cyan-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🐳</span>
+         <div>
+          <h3 class="font-semibold text-lg">Docker</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Containerização, deployment e orquestração de ambientes.</p>
+        <p class="text-xs text-cyan-400">💼 Mercado: Requisito em empresas modernas</p>
+       </div><!-- Documentação -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-green-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">📝</span>
+         <div>
+          <h3 class="font-semibold text-lg">Documentação de Software</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">README, API docs, diagramas e boas práticas.</p>
+        <p class="text-xs text-green-400">💼 Mercado: Profissional diferenciado</p>
+       </div><!-- Backend Node.js -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-yellow-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🌐</span>
+         <div>
+          <h3 class="font-semibold text-lg">Backend - Node.js</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Express, APIs REST, autenticação e integração.</p>
+        <p class="text-xs text-yellow-400">💼 Mercado: Linguagem muito procurada</p>
+       </div><!-- Frontend VueJS -->
+       <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-green-500/50 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🌐</span>
+         <div>
+          <h3 class="font-semibold text-lg">Frontend - VueJS</h3>
+          <p class="text-xs text-slate-500">Fundamental</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Componentes, estado, routing e integração com APIs.</p>
+        <p class="text-xs text-green-400">💼 Mercado: Framework em crescimento</p>
+       </div><!-- UI/UX Extra -->
+       <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-pink-900/30 to-rose-900/30 border border-pink-600/50 hover:border-pink-500 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🎨</span>
+         <div>
+          <h3 class="font-semibold text-lg">UI/UX Design</h3>
+          <p class="text-xs text-pink-400 font-semibold">⭐ EXTRA</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Experiência do usuário, design thinking e prototipagem.</p>
+        <p class="text-xs text-pink-300">💼 Mercado: Agregam valor diferencial ao dev</p>
+       </div><!-- Testes Extra -->
+       <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-indigo-900/30 to-blue-900/30 border border-indigo-600/50 hover:border-indigo-500 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🧪</span>
+         <div>
+          <h3 class="font-semibold text-lg">Testes de Software</h3>
+          <p class="text-xs text-indigo-400 font-semibold">⭐ EXTRA</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Unitários, integração, E2E e automação de testes.</p>
+        <p class="text-xs text-indigo-300">💼 Mercado: Muito valorizado em seleções</p>
+       </div><!-- DevSecOps Extra -->
+       <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-600/50 hover:border-red-500 transition-colors">
+        <div class="flex items-start gap-3 mb-3"><span class="text-2xl">🔐</span>
+         <div>
+          <h3 class="font-semibold text-lg">DevSecOps</h3>
+          <p class="text-xs text-red-400 font-semibold">⭐ EXTRA</p>
+         </div>
+        </div>
+        <p class="text-sm text-slate-400 mb-2">Segurança, CI/CD, vulnerabilidades e compliance.</p>
+        <p class="text-xs text-red-300">💼 Mercado: Altamente procurado e bem remunerado</p>
+       </div>
+      </div><!-- Legend -->
+      <div class="mt-6 p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm">
+       <p class="text-slate-400"><span class="text-blue-400">7 Trilhas Fundamentais</span> formam o core do desenvolvimento • <span class="text-pink-400 ml-2">3 Trilhas Extra</span> agregam grande valor ao mercado</p>
+      </div>
+     </div>
+    </div><!-- Slide 6: EADs -->
+    <div class="slide" data-slide="6">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-sm mono mb-6">📅 EAD</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">EADs</h2>
+       <p class="text-xl text-slate-400 mb-12">EADs toda sexta-feira</p>
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+         <div class="text-4xl mb-4">
+          📋
+         </div>
+         <h3 class="font-semibold text-lg">Carga Horária Oficial</h3>
+         <p class="text-slate-400 text-sm mt-2">Parte integrante do curso</p>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+         <div class="text-4xl mb-4">
+          📖
+         </div>
+         <h3 class="font-semibold text-lg">Complemento</h3>
+         <p class="text-slate-400 text-sm mt-2">Aprofundamento do aprendizado</p>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+         <div class="text-4xl mb-4">
+          ✅
+         </div>
+         <h3 class="font-semibold text-lg">Avaliação</h3>
+         <p class="text-slate-400 text-sm mt-2">Conta para sua nota final</p>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-red-500/10 border border-red-500/30">
+        <p class="text-xl font-bold text-red-400">📌 Não é folga, é formação.</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 7: Trabalhos -->
+    <div class="slide" data-slide="7">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-sm mono mb-6">📝 TRABALHOS</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Trabalhos</h2>
+       <p class="text-xl text-slate-400 mb-12">Trabalhos em equipe e individuais</p>
+       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-indigo-900/50 to-indigo-800/30 border border-indigo-700/50 text-center">
+         <div class="text-3xl mb-2">
+          🤝
+         </div>
+         <h3 class="font-semibold">Colaboração</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/50 text-center">
+         <div class="text-3xl mb-2">
+          💬
+         </div>
+         <h3 class="font-semibold">Comunicação</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/50 text-center">
+         <div class="text-3xl mb-2">
+          📁
+         </div>
+         <h3 class="font-semibold">Organização</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-gradient-to-br from-cyan-900/50 to-cyan-800/30 border border-cyan-700/50 text-center">
+         <div class="text-3xl mb-2">
+          🚀
+         </div>
+         <h3 class="font-semibold">Autonomia</h3>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700">
+        <p class="text-lg">O mercado exige saber trabalhar <strong class="text-blue-400">em equipe</strong> e <strong class="text-purple-400">individualmente</strong>.</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 8: Regras -->
+    <div class="slide" data-slide="8">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-sm mono mb-6">📋 REGRAS</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Regras Básicas</h2>
+       <p class="text-xl text-slate-400 mb-12">Postura esperada em sala</p>
+       <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center gap-3"><span class="text-green-400 text-2xl">✔</span> <span class="text-lg font-semibold">Respeito</span>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center gap-3"><span class="text-green-400 text-2xl">✔</span> <span class="text-lg font-semibold">Ética</span>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center gap-3"><span class="text-green-400 text-2xl">✔</span> <span class="text-lg font-semibold">Compromisso</span>
+        </div>
+        <div class="card-hover p-6 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center gap-3"><span class="text-green-400 text-2xl">✔</span> <span class="text-lg font-semibold">Profissionalismo</span>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/30">
+        <p class="text-xl"><strong>Último ano = postura de profissional.</strong></p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 9: IA -->
+    <div class="slide" data-slide="9">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-400 text-sm mono mb-6">🤖 INTELIGÊNCIA ARTIFICIAL</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Uso de IA</h2>
+       <p class="text-xl text-slate-400 mb-12">IA é ferramenta, não substituto</p>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="space-y-3">
+         <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30"><span class="text-green-400 text-xl">✔</span> <span>Apoio para aprender</span>
+         </div>
+         <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30"><span class="text-green-400 text-xl">✔</span> <span>Acelera processos</span>
+         </div>
+         <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30"><span class="text-green-400 text-xl">✔</span> <span>Ajuda na produtividade</span>
+         </div>
+        </div>
+        <div class="flex items-center justify-center">
+         <div class="p-6 rounded-xl bg-red-500/10 border border-red-500/30"><span class="text-red-400 text-xl">❌</span> <span class="ml-2 text-lg">Não substitui entendimento</span>
+         </div>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700 text-left max-w-2xl mx-auto">
+        <p class="text-yellow-400 mono text-sm mb-2">📌 Exemplo:</p>
+        <p class="text-slate-300">Uso de IA para sistema de métricas de notas - <strong class="text-blue-400">A IA ajuda, mas a lógica vem do profissional.</strong></p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 10: Formação -->
+    <div class="slide" data-slide="10">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-sm mono mb-6">🌟 FORMAÇÃO</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Importância da Formação</h2>
+       <p class="text-xl text-slate-400 mb-12">Muito além do técnico</p>
+       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+         <div class="text-3xl mb-2">
+          ⚖️
+         </div>
+         <h3 class="font-semibold text-sm">Ética Profissional</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+         <div class="text-3xl mb-2">
+          🗣️
+         </div>
+         <h3 class="font-semibold text-sm">Comunicação</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+         <div class="text-3xl mb-2">
+          ✋
+         </div>
+         <h3 class="font-semibold text-sm">Responsabilidade</h3>
+        </div>
+        <div class="card-hover p-5 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+         <div class="text-3xl mb-2">
+          🧠
+         </div>
+         <h3 class="font-semibold text-sm">Maturidade Emocional</h3>
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+        <p class="text-xl">O mercado valoriza <strong class="text-emerald-400">comportamento profissional</strong>.</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 11: Avaliação -->
+    <div class="slide" data-slide="11">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-sm mono mb-6">📊 AVALIAÇÃO</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Métrica de Avaliação</h2>
+       <p class="text-xl text-slate-400 mb-12">Como vocês serão avaliados</p>
+       <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8 max-w-3xl mx-auto">
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-blue-400">📊</span> Trabalhos em equipe
+        </div>
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-purple-400">📊</span> Trabalhos individuais
+        </div>
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-cyan-400">📊</span> Qualidade dos projetos
+        </div>
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-green-400">📊</span> EADs
+        </div>
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-orange-400">📊</span> Simulados ENADE
+        </div>
+        <div class="card-hover p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-sm"><span class="text-pink-400">📊</span> Soft Skills
+        </div>
+       </div>
+       <div class="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+        <p class="text-lg">✔ <strong>Técnica</strong> + <strong class="text-amber-400">postura profissional</strong></p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 12: Características -->
+    <div class="slide" data-slide="12">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 text-sm mono mb-6">🎯 PERFIL</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Características Esperadas</h2>
+       <p class="text-xl text-slate-400 mb-12">Perfil esperado do aluno ADS 3º ano</p>
+       <div class="flex flex-wrap justify-center gap-3 mb-8"><span class="px-5 py-3 rounded-full bg-slate-800/80 border border-slate-700 card-hover">👁️ Visão de mercado</span> <span class="px-5 py-3 rounded-full bg-slate-800/80 border border-slate-700 card-hover">✋ Responsabilidade</span> <span class="px-5 py-3 rounded-full bg-slate-800/80 border border-slate-700 card-hover">🚀 Autonomia</span> <span class="px-5 py-3 rounded-full bg-slate-800/80 border border-slate-700 card-hover">🤝 Compromisso</span> <span class="px-5 py-3 rounded-full bg-slate-800/80 border border-slate-700 card-hover">📈 Evolução contínua</span>
+       </div>
+       <div class="p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30">
+        <p class="text-xl font-semibold">Quem aproveita esse ano <span class="gradient-text">sai à frente</span>.</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Slide 13: Encerramento -->
+    <div class="slide" data-slide="13">
+     <div class="h-full flex flex-col items-center justify-center p-8 md:p-16">
+      <div class="text-center max-w-4xl"><span class="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-blue-400 text-sm mono mb-6">🎉 ENCERRAMENTO</span>
+       <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text">Mensagem Final</h2>
+       <div class="space-y-4 mb-8 max-w-2xl mx-auto">
+        <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 text-left"><span class="text-blue-400 text-xl">🎯</span> <span class="text-lg">Este é o ano de <strong>consolidação profissional</strong>.</span>
+        </div>
+        <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 text-left"><span class="text-purple-400 text-xl">🎯</span> <span class="text-lg">O esforço de hoje vira <strong>oportunidade amanhã</strong>.</span>
+        </div>
+       </div>
+       <blockquote class="text-xl italic text-slate-400 mb-12 p-6 border-l-4 border-blue-500 bg-slate-800/30 rounded-r-xl max-w-2xl mx-auto text-left">
+        "Nós damos o caminho, mas quem constrói a jornada são vocês."
+       </blockquote>
+       <div class="p-8 rounded-2xl bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 glow">
+        <p class="text-2xl font-bold">Sejam bem-vindos ao último ano de ADS 🚀</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      welcome_title: 'Bem-vindos ao 3º Ano',
+      course_name: 'ADS',
+      primary_color: '#3b82f6',
+      secondary_color: '#8b5cf6',
+      background_color: '#0f172a',
+      text_color: '#ffffff',
+      accent_color: '#22d3ee',
+      font_family: 'Space Grotesk'
+    };
+    
+    let config = { ...defaultConfig };
+    let currentSlide = 1;
+    const totalSlides = 13;
+    
+    function updateUI() {
+      const mainTitle = document.getElementById('mainTitle');
+      const courseTitle = document.getElementById('courseTitle');
+      
+      if (mainTitle) {
+        mainTitle.innerHTML = `<span class="gradient-text">${config.welcome_title || defaultConfig.welcome_title}</span>`;
+      }
+      if (courseTitle) {
+        courseTitle.textContent = `Análise e Desenvolvimento de Sistemas (${config.course_name || defaultConfig.course_name})`;
+      }
+      
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      document.body.style.fontFamily = `${fontFamily}, sans-serif`;
+    }
+    
+    function goToSlide(slideNum) {
+      if (slideNum < 1 || slideNum > totalSlides) return;
+      
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((slide, index) => {
+        slide.classList.remove('active', 'prev');
+        const num = index + 1;
+        if (num === slideNum) {
+          slide.classList.add('active');
+        } else if (num < slideNum) {
+          slide.classList.add('prev');
+        }
+      });
+      
+      currentSlide = slideNum;
+      
+      document.getElementById('progress').style.width = `${(slideNum / totalSlides) * 100}%`;
+      document.getElementById('slideCounter').textContent = `${String(slideNum).padStart(2, '0')} / ${totalSlides}`;
+      
+      document.getElementById('prevBtn').disabled = slideNum === 1;
+      document.getElementById('nextBtn').disabled = slideNum === totalSlides;
+      
+      updateIndicators();
+    }
+    
+    function updateIndicators() {
+      const container = document.getElementById('indicators');
+      container.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-2 h-2 rounded-full transition-all ${i === currentSlide ? 'bg-blue-500 scale-125' : 'bg-slate-600 hover:bg-slate-500'}`;
+        dot.onclick = () => goToSlide(i);
+        container.appendChild(dot);
+        if (i < totalSlides) {
+          const spacer = document.createElement('div');
+          spacer.className = 'h-1';
+          container.appendChild(spacer);
+        }
+      }
+    }
+    
+    document.getElementById('prevBtn').addEventListener('click', () => goToSlide(currentSlide - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => goToSlide(currentSlide + 1));
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        goToSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToSlide(currentSlide - 1);
+      }
+    });
+    
+    // Touch support
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goToSlide(currentSlide + 1);
+        else goToSlide(currentSlide - 1);
+      }
+    });
+    
+    updateIndicators();
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          updateUI();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.primary_color || defaultConfig.primary_color,
+              set: (value) => { cfg.primary_color = value; window.elementSdk.setConfig({ primary_color: value }); }
+            },
+            {
+              get: () => cfg.secondary_color || defaultConfig.secondary_color,
+              set: (value) => { cfg.secondary_color = value; window.elementSdk.setConfig({ secondary_color: value }); }
+            },
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (value) => { cfg.background_color = value; window.elementSdk.setConfig({ background_color: value }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => cfg.font_family || defaultConfig.font_family,
+            set: (value) => { cfg.font_family = value; window.elementSdk.setConfig({ font_family: value }); }
+          },
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['welcome_title', cfg.welcome_title || defaultConfig.welcome_title],
+          ['course_name', cfg.course_name || defaultConfig.course_name]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb3dd25d487a623',t:'MTc3MDY0NTMyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
