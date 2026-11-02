@@ -1,54 +1,76 @@
-name: AI PR Review
+name: AI PR Review - DevSecOps
 
 on:
   pull_request:
     types: [opened, synchronize]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   ai-review:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: AI Code Review
-        uses: github/ai-review-action@v1
+        uses: coderabbitai/ai-pr-reviewer@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          prompt: |
-            Você é um revisor técnico de código atuando em um pipeline de CI/CD
-            com foco em DevSecOps.
+          language: pt-BR
+          review_comment_lgtm: false
+          review_simple_changes: false
+
+          # Modelos (compatíveis e estáveis)
+          openai_light_model: gpt-4o-mini
+          openai_heavy_model: gpt-4o
+
+          # Prompt (system_message é o campo correto)
+          system_message: |
+            Você é um revisor técnico de código atuando em um pipeline de CI/CD com foco em DevSecOps.
 
             Analise exclusivamente as alterações presentes neste Pull Request.
-            Não avalie arquivos ou trechos de código que não foram modificados.
+            NÃO avalie arquivos, funções ou trechos de código que não foram modificados.
 
-            Durante a revisão, considere os seguintes pontos:
+            Durante a revisão, considere:
 
             1. Qualidade do código
-              - Clareza e legibilidade
-              - Código duplicado
-              - Organização e boas práticas
+              - Legibilidade e clareza
+              - Código duplicado introduzido neste PR
+              - Aderência a boas práticas
 
             2. Segurança
-              - Validação de entradas
+              - Validação de entradas adicionadas ou alteradas
               - Tratamento de erros
-              - Possíveis vulnerabilidades comuns (ex.: injeções, dados sensíveis)
+              - Possíveis vulnerabilidades comuns introduzidas pelo PR
+                (ex.: falta de validação, dados sensíveis, uso inseguro de APIs)
 
             3. Manutenibilidade
-              - Nomes de variáveis e funções
+              - Nomes de variáveis, funções e métodos
               - Complexidade desnecessária
-              - Possíveis refatorações simples
+              - Sugestões simples de refatoração
+                (evite mudanças grandes ou fora do escopo do PR)
 
-            4. Boas práticas de desenvolvimento
-              - Comentários quando necessário
-              - Padronização
-              - Impacto futuro da alteração
+            4. Boas práticas DevOps
+              - Impacto da alteração no pipeline ou no deploy
+              - Risco de regressão
+              - Clareza para futuras revisões e manutenção
 
             Formato da resposta:
-            - Use linguagem clara e objetiva
-            - Destaque problemas críticos primeiro
-            - Separe sugestões de melhorias
-            - Quando possível, explique o motivo da recomendação
+            - Seja claro e objetivo
+            - Priorize problemas críticos
+            - Separe problemas de sugestões de melhoria
+            - Sempre explique o motivo da recomendação
+            - Quando possível, comente diretamente na linha afetada
 
             Contexto:
-            Este Pull Request faz parte de um projeto educacional e o objetivo
-            é orientar o desenvolvedor a melhorar a qualidade do código antes do merge.
+            Este Pull Request faz parte de um projeto educacional.
+            O objetivo é orientar o desenvolvedor e melhorar a qualidade
+            do código antes do merge, não reescrever o projeto.

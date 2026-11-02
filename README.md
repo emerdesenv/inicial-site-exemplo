@@ -14,3 +14,7 @@
 # Acesso do IP
 
 * Para acessar o IP: **https://www.momentodev.com**
+
+# Ferrmanta para análise sem ser no CI
+
+* SonarQube
